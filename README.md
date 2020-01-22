@@ -21,8 +21,14 @@ sudo docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 po
 - Open the terminal at the project directory and run the command:
 
 ```sh
-npm i;touch .env;echo "DATABASE=postgres\nDATABASE_USERNAME=postgres\nDATABASE_PASSWORD=postgres\nJWT_KEY=PRIVATE\n" >> .env;npm start;
+npm i;touch .env;echo "DATABASE=postgres DATABASE_USERNAME=postgres DATABASE_PASSWORD=postgres JWT_KEY=PRIVATE" >> .env;npm start;
 
+```
+
+- On Windows:
+
+```sh
+npm i;type .env;echo "DATABASE=postgres DATABASE_USERNAME=postgres DATABASE_PASSWORD=postgres JWT_KEY=PRIVATE" >> .env;npm start;
 ```
 
 - You should see the server running with the output:
