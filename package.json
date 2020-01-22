@@ -1,0 +1,56 @@
+{
+  "name": "haifa-dev-backend",
+  "version": "1.0.0",
+  "description": "The back-end server for the official Haifa:dev website",
+  "main": "index.js",
+  "engines": {
+    "node": "12.13.1",
+    "npm": "6.13.4"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "preshare": "npm list -g ngrok ||  npm i -g ngrok",
+    "share": "ngrok http 5000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SergwayKhodyachikh/haifa-dev-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SergwayKhodyachikh/haifa-dev-backend/issues"
+  },
+  "homepage": "https://github.com/SergwayKhodyachikh/haifa-dev-backend#readme",
+  "dependencies": {
+    "@hapi/joi": "^17.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
+    "lodash": "^4.17.15",
+    "morgan": "^1.9.1",
+    "multer": "^1.4.2",
+    "pg": "^7.17.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.3",
+    "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.20.0",
+    "jsdoc": "^3.6.3",
+    "nodemon": "^2.0.2"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "public",
+      "public/*"
+    ],
+    "delay": "2500"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "env": {
+    "browser": false,
+    "commonjs": true,
+    "es6": true
+  },
+  "extends": ["airbnb-base"],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "rules": {
+    "arrow-parens": "off",
+    "comma-dangle": "off",
+    "consistent-return": "off",
+    "nonblock-statement-body-position": "off",
+    "curly": "off",
+    "implicit-arrow-linebreak": "off",
+    "operator-linebreak": "off",
+    "no-return-assign": "off",
+    "no-param-reassign": "off"
+  }
+}
