@@ -1,5 +1,7 @@
 # images<::EDIT IF YOU NEED TO PUSH SOME IMAGES::>
 public/img/*
+# exceptions to the rule
+!public/img/.gitkeep
 # Logs
 logs
 *.log
