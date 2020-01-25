@@ -13,7 +13,8 @@ exports.getEvents = async (req, res) => {
   let events;
 
   // checking for pagination query options
-  if (offset && limit) events = await Event.findAndCountAll({ offset, limit, raw: true });
+  if (offset && limit)
+    events = await Event.findAndCountAll({ offset, limit, raw: true });
   else if (offset) events = await Event.findAndCountAll({ offset, raw: true });
   else if (limit) events = await Event.findAndCountAll({ limit, raw: true });
   else events = await Event.findAndCountAll({ raw: true });
