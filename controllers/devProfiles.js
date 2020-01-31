@@ -2,6 +2,7 @@ const DevProfile = require('../models/DevProfile');
 const AppError = require('../utils/AppError');
 const { removeImg } = require('../utils/fsManipulations');
 const Social = require('../models/Social');
+
 /**
  * get all the developer profiles can pass
  * pagination options offset and limit via query.
@@ -23,8 +24,8 @@ exports.getDevProfiles = async (req, res) => {
  * get developer profile by passing the primary key via the param id.
  */
 exports.getDevProfile = async (req, res) => {
-  const devProfile = await DevProfile.findByPk(req.params.id, { raw: true });
-  // validate dev profiles existence in the database
+  const devProfile = await DevProfile.findByPk(req.params.id, { include: 'socials' });
+  // validate if developer profile exists
   if (!devProfile) {
     throw new AppError('The developer profile with the given ID was not found.', 404);
   }
@@ -32,7 +33,7 @@ exports.getDevProfile = async (req, res) => {
 };
 
 /**
- * remove a developer profile if exists
+ * delete developer profile by passing the primary key via the param id.
  */
 exports.deleteDevProfile = async (req, res) => {
   // find a single user with the id

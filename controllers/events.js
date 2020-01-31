@@ -1,37 +1,30 @@
-const _ = require('lodash');
 const Event = require('../models/Event');
 const AppError = require('../utils/AppError');
 const { removeImg } = require('../utils/fsManipulations');
 
 /**
- * get all the events from the database
- * can pass pagination options offset, limit
- * via req.query
+ * get all the events can pass pagination
+ * options offset and limit via query.
  */
 exports.getEvents = async (req, res) => {
   const { offset, limit } = req.query;
-  let events;
+  const projectParams = { raw: true };
 
   // checking for pagination query options
-  if (offset && limit)
-    events = await Event.findAndCountAll({ offset, limit, raw: true });
-  else if (offset) events = await Event.findAndCountAll({ offset, raw: true });
-  else if (limit) events = await Event.findAndCountAll({ limit, raw: true });
-  else events = await Event.findAndCountAll({ raw: true });
+  if (offset) projectParams.offset = offset;
+  if (limit) projectParams.limit = limit;
+
+  const events = await Event.findAndCountAll(projectParams);
 
   res.send(events);
 };
 
 /**
- * get a event by the primary key via the req.params.id
+ * get event by passing the primary key via the param id.
  */
-exports.getEventByPK = async (req, res) => {
-  // check if uuid isValid
-  const { error } = Event.isUUID(req.params.id);
-  if (error) throw new AppError(error.details[0].message, 400);
-
+exports.getEvent = async (req, res) => {
   const event = await Event.findByPk(req.params.id, { raw: true });
-  // validate dev profiles existence in the database
+  // validate if event exists
   if (!event) {
     throw new AppError('The event with the given ID was not found.', 404);
   }
@@ -39,18 +32,14 @@ exports.getEventByPK = async (req, res) => {
 };
 
 /**
- * remove a event if exists
+ * delete event by passing the primary key via the param id
  */
-exports.deleteEventByPK = async (req, res) => {
-  // check if uuid isValid
-  const { error } = Event.isUUID(req.params.id);
-  if (error) throw new AppError(error.details[0].message, 400);
+exports.deleteEvent = async (req, res) => {
   // find a single user with the id
   const event = await Event.findByPk(req.params.id);
   // validate dev profiles existence in the database
-  if (!event) {
-    throw new AppError('The event with the given ID was not found.', 404);
-  }
+  if (!event) throw new AppError('The event with the given ID was not found.', 404);
+
   // delete the current event
   removeImg(event.image);
   await event.destroy();
@@ -58,51 +47,29 @@ exports.deleteEventByPK = async (req, res) => {
   res.sendStatus(204);
 };
 
+exports.validateEvent = (req, res, next) => {
+  //  user input validation
+  const { error } = Event.validateAll(req.body);
+  if (error) throw new AppError(error.details[0].message, 400);
+  next();
+};
+
 /**
- * Create new event if valid
+ * create new event via request body
  */
 exports.createEvent = async (req, res) => {
-  // user image type validation via multer
-  if (!req.file) throw new AppError('Attached file is not an image', 422);
-  req.body.image = req.file.path;
-  //  user input validation
-  const { error } = await Event.validateAll(req.body);
-  if (error) {
-    removeImg(req.file.path);
-    throw new AppError(error.details[0].message, 400);
-  }
-
-  const event = await Event.create(
-    _.pick(req.body, ['date', 'title', 'image', 'description', 'location'])
-  );
+  const event = await Event.create(req.body);
   res.status(201).send(event);
 };
 
 exports.updateEvent = async (req, res) => {
-  // check if uuid isValid
-  const { error: uuidError } = Event.isUUID(req.params.id);
-  if (uuidError) {
-    removeImg(req.file.path);
-    throw new AppError(uuidError.details[0].message, 400);
-  }
-  // user image type validation via multer
-  if (!req.file) throw new AppError('Attached file is not an image', 422);
-  req.body.image = req.file.path;
-  //  user input validation
-  const { error } = await Event.validateAll(req.body);
-  if (error) {
-    removeImg(req.file.path);
-    throw new AppError(error.details[0].message, 400);
-  }
   const event = await Event.findByPk(req.params.id);
   // check if the event exists
-  if (!event) {
-    removeImg(req.file.path);
-    throw new AppError('The event with the given ID was not found.', 404);
-  }
+  if (!event) throw new AppError('The event with the given ID was not found.', 404);
+
   // remove the old image
   removeImg(event.image);
-  await event.update(_.pick(req.body, ['email', 'name', 'image', 'bio']));
+  await event.update(req.body);
 
   res.send(event);
 };
