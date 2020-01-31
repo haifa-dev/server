@@ -1,17 +1,10 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
 const sequelize = require('../config/database');
+const Social = require('./Social');
 
 class DevProfile extends Model {
-  static isUUID(id) {
-    return Joi.object({
-      id: Joi.string()
-        .uuid()
-        .required()
-    }).validate({ id });
-  }
-
-  static validateAll(list) {
+  static validateAll(devProfile) {
     return Joi.object({
       id: Joi.string().uuid(),
       name: Joi.string()
@@ -24,8 +17,31 @@ class DevProfile extends Model {
         .required()
         .email()
         .min(3)
+        .max(255),
+      socials: Joi.array()
+        .min(1)
         .max(255)
-    }).validate(list);
+        .items(
+          Joi.object({
+            name: Joi.string().required(),
+            url: Joi.string()
+              .regex(
+                new RegExp(
+                  '^(https?:\\/\\/)?' + // protocol
+                  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+                  '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+                  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+                  '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+                    '(\\#[-a-z\\d_]*)?$',
+                  'i'
+                )
+              )
+              .min(1)
+              .max(255)
+              .required()
+          })
+        )
+    }).validate(devProfile);
   }
 }
 
@@ -56,9 +72,16 @@ DevProfile.init(
         len: [3, 255]
       }
     }
-    // Social: MIGHT IN ANOTHER MODEL
   },
   { sequelize }
 );
+
+const associationParams = {
+  as: 'socials',
+  foreignKey: { name: 'devProfileId', allowNull: false }
+};
+
+DevProfile.hasMany(Social, associationParams);
+Social.belongsTo(DevProfile, associationParams);
 
 module.exports = DevProfile;

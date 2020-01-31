@@ -1,19 +1,18 @@
 const express = require('express');
 const imgUpload = require('../middleware/imgUpload');
 const { devProfiles: controller } = require('../controllers');
+const isUUID = require('../middleware/isUUID');
 
 const router = express.Router();
 
 router.get('/', controller.getDevProfiles);
 
-router.get('/:id', controller.getDevProfileByPK);
+router.get('/:id', isUUID, controller.getDevProfile);
 
-router.delete('/:id', controller.deleteDevProfileByPK);
+router.delete('/:id', isUUID, controller.deleteDevProfile);
 
-router.use(imgUpload);
+router.post('/', imgUpload, controller.validateDevProfile, controller.createDevProfile);
 
-router.post('/', controller.createDevProfile);
-
-router.put('/:id', controller.updateDevProfile);
+router.put('/:id', isUUID, imgUpload, controller.validateDevProfile, controller.updateDevProfile);
 
 module.exports = router;

@@ -24,9 +24,13 @@ function asyncErrorHandler(handler) {
  * @param {*} controller
  */
 function injectAsyncErrorWrapper(controller) {
-  Object.keys(controller).forEach(key => (controller[key] = asyncErrorHandler(controller[key])));
+  Object.keys(controller).forEach(key => {
+    controller[key] = asyncErrorHandler(controller[key]);
+  });
 }
 
-Object.values(controllers).forEach(controller => injectAsyncErrorWrapper(controller));
+Object.values(controllers).forEach(controller =>
+  injectAsyncErrorWrapper(controller)
+);
 
 module.exports = controllers;

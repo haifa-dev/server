@@ -1,3 +1,5 @@
+const { removeImg } = require('../utils/fsManipulations');
+
 /**
  * meant for production environment case, return and log error details
  * base on the error Operational status.
@@ -41,6 +43,11 @@ const sendErrorDev = (err, res) => {
 module.exports = function error(err, req, res, next) {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
+
+  // clean file if the request failed
+  if (req.file) {
+    removeImg(req.file.path);
+  }
 
   if (
     process.env.NODE_ENV === 'development' ||

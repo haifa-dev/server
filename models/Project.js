@@ -19,7 +19,7 @@ class Project extends Model {
         .min(1)
         .max(255),
       description: Joi.string().required()
-    }).validate(list);
+    }).validateAsync(list);
   }
 }
 Project.init(

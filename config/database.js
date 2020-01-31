@@ -10,8 +10,7 @@ const sequelize = new Sequelize(
     logging: false,
     // (...msg) => console.log(msg),
     define: {
-      underscored: true,
-      paranoid: true
+      underscored: true
     }
   }
 );

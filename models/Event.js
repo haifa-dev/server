@@ -24,7 +24,7 @@ class Event extends Model {
       description: Joi.string().required(),
       location: Joi.string().required(),
       image: Joi.string()
-    }).validate(list);
+    }).validateAsync(list);
   }
 }
 

@@ -24,10 +24,6 @@ exports.getProjects = async (req, res) => {
  * get a project request by the primary key via the req.params.id
  */
 exports.getProjectByPK = async (req, res) => {
-  // check if uuid isValid
-  const { error } = Project.isUUID(req.params.id);
-  if (error) throw new AppError(error.details[0].message, 400);
-
   const project = await Project.findByPk(req.params.id, { raw: true });
   // validate dev profiles existence in the database
   if (!project) {
@@ -40,9 +36,6 @@ exports.getProjectByPK = async (req, res) => {
  * remove a project request if exists
  */
 exports.deleteProjectByPK = async (req, res) => {
-  // check if uuid isValid
-  const { error } = Project.isUUID(req.params.id);
-  if (error) throw new AppError(error.details[0].message, 400);
   // find a single user with the id
   const project = await Project.findByPk(req.params.id);
   // validate dev profiles existence in the database
@@ -70,11 +63,6 @@ exports.createProject = async (req, res) => {
 };
 
 exports.updateProject = async (req, res) => {
-  // check if uuid isValid
-  const { error: uuidError } = Project.isUUID(req.params.id);
-  if (uuidError) {
-    throw new AppError(uuidError.details[0].message, 400);
-  }
   //  user input validation
   const { error } = await Project.validateAll(req.body);
   if (error) {

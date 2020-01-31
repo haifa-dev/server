@@ -9,13 +9,13 @@ const AppError = require('../utils/AppError');
  */
 exports.getProjectReqs = async (req, res) => {
   const { offset, limit } = req.query;
-  let projectReq;
+  const projectParam = { raw: true };
 
   // checking for pagination query options
-  if (offset && limit) projectReq = await ProjectReq.findAndCountAll({ offset, limit, raw: true });
-  else if (offset) projectReq = await ProjectReq.findAndCountAll({ offset, raw: true });
-  else if (limit) projectReq = await ProjectReq.findAndCountAll({ limit, raw: true });
-  else projectReq = await ProjectReq.findAndCountAll({ raw: true });
+  if (offset) projectParam.offset = offset;
+  if (limit) projectParam.limit = limit;
+
+  const projectReq = await ProjectReq.findAndCountAll(projectParam);
 
   res.send(projectReq);
 };
@@ -31,7 +31,10 @@ exports.getProjectReqByPK = async (req, res) => {
   const projectReq = await ProjectReq.findByPk(req.params.id, { raw: true });
   // validate dev profiles existence in the database
   if (!projectReq) {
-    throw new AppError('The project request with the given ID was not found.', 404);
+    throw new AppError(
+      'The project request with the given ID was not found.',
+      404
+    );
   }
   res.send(projectReq);
 };
@@ -47,7 +50,10 @@ exports.deleteProjectReqByPK = async (req, res) => {
   const projectReq = await ProjectReq.findByPk(req.params.id);
   // validate dev profiles existence in the database
   if (!projectReq) {
-    throw new AppError('The project request with the given ID was not found.', 404);
+    throw new AppError(
+      'The project request with the given ID was not found.',
+      404
+    );
   }
   // delete the current project request
   await projectReq.destroy();
@@ -91,10 +97,15 @@ exports.updateProjectReq = async (req, res) => {
   const projectReq = await ProjectReq.findByPk(req.params.id);
   // check if the request exists
   if (!projectReq) {
-    throw new AppError('The project request with the given ID was not found.', 404);
+    throw new AppError(
+      'The project request with the given ID was not found.',
+      404
+    );
   }
   // remove the old image
-  await projectReq.update(_.pick(req.body, ['date', 'email', 'content', 'submittedBy', 'phone']));
+  await projectReq.update(
+    _.pick(req.body, ['date', 'email', 'content', 'submittedBy', 'phone'])
+  );
 
   res.send(projectReq);
 };

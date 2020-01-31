@@ -10,10 +10,8 @@ router.get('/:id', controller.getEventByPK);
 
 router.delete('/:id', controller.deleteEventByPK);
 
-router.use(imgUpload);
+router.post('/', imgUpload, controller.createEvent);
 
-router.post('/', controller.createEvent);
-
-router.put('/:id', controller.updateEvent);
+router.put('/:id', imgUpload, controller.updateEvent);
 
 module.exports = router;
