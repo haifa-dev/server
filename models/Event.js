@@ -1,6 +1,7 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/database');
+const Tag = require('./Tag');
 
 class Event extends Model {
   static isUUID(id) {
@@ -23,7 +24,15 @@ class Event extends Model {
         .max(255),
       description: Joi.string().required(),
       location: Joi.string().required(),
-      image: Joi.string()
+      image: Joi.string(),
+      tags: Joi.array().items(
+        Joi.object({
+          title: Joi.string()
+            .min(1)
+            .max(255)
+            .required()
+        })
+      )
     }).validateAsync(list);
   }
 }
@@ -56,9 +65,16 @@ Event.init(
     image: {
       type: DataTypes.STRING
     }
-    // Tags: MIGHT IN ANOTHER MODEL
   },
   { sequelize }
 );
+
+// const associationParams = { as: 'tags', foreignKey: 'tagId' };
+
+// DevProfile.hasMany(Social, associationParams);
+// Social.belongsTo(DevProfile, associationParams);
+
+Event.hasMany(Tag);
+Tag.belongsTo(Event);
 
 module.exports = Event;

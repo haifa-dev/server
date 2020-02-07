@@ -34,7 +34,8 @@ class DevProfile extends Model {
                   '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
                     '(\\#[-a-z\\d_]*)?$',
                   'i'
-                )
+                ),
+                { name: 'url' }
               )
               .min(1)
               .max(255)

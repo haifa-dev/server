@@ -1,4 +1,7 @@
 const { Sequelize } = require('sequelize');
+const chalk = require('chalk');
+
+const { log, error } = console;
 
 const sequelize = new Sequelize(
   process.env.DATABASE,
@@ -7,8 +10,9 @@ const sequelize = new Sequelize(
   {
     host: 'localhost',
     dialect: 'postgres',
-    logging: false,
-    // (...msg) => console.log(msg),
+    logging: query => {
+      log(chalk.cyan(query));
+    },
     define: {
       underscored: true
     }
@@ -17,15 +21,16 @@ const sequelize = new Sequelize(
 
 sequelize
   .authenticate()
-  .then(() => console.log('Connection to database established successfully'))
+  .then(() => log('Connection to database established successfully'))
   .catch(err => {
-    console.error(
-      `Error Establishing a Database Connection\nError:\t{\n\ttitle: ${err.name}\n\taddress: ${err.parent.address}\n\tport: ${err.parent.port} \n}`
+    error(
+      `${chalk.red('Error')} Establishing a Database Connection\nError:\t{\n\ttitle: ${
+        err.name
+      }\n\taddress: ${err.parent.address}\n\tport: ${err.parent.port} \n}`
     );
     process.exit(1);
   });
 
-sequelize.sync({ force: true });
-
 // sequelize.sync({ force: true });
+
 module.exports = sequelize;

@@ -9,13 +9,13 @@ const Social = require('../models/Social');
  */
 exports.getDevProfiles = async (req, res) => {
   const { offset, limit } = req.query;
-  const projectParams = { include: 'socials', distinct: 'email' };
+  const projectParams = { subQuery: true, include: 'socials' };
 
   // checking for pagination query options
   if (offset) projectParams.offset = offset;
   if (limit) projectParams.limit = limit;
 
-  const devProfiles = await DevProfile.findAndCountAll(projectParams);
+  const devProfiles = await DevProfile.findAll(projectParams);
 
   res.send(devProfiles);
 };

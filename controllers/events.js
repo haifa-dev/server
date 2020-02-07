@@ -8,13 +8,13 @@ const { removeImg } = require('../utils/fsManipulations');
  */
 exports.getEvents = async (req, res) => {
   const { offset, limit } = req.query;
-  const projectParams = { raw: true };
+  const projectParams = { subQuery: true, include: 'tags' };
 
   // checking for pagination query options
   if (offset) projectParams.offset = offset;
   if (limit) projectParams.limit = limit;
 
-  const events = await Event.findAndCountAll(projectParams);
+  const events = await Event.findAll(projectParams);
 
   res.send(events);
 };
@@ -58,7 +58,7 @@ exports.validateEvent = (req, res, next) => {
  * create new event via request body
  */
 exports.createEvent = async (req, res) => {
-  const event = await Event.create(req.body);
+  const event = await Event.create(req.body, { include: 'tags' });
   res.status(201).send(event);
 };
 
