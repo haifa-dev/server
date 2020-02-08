@@ -1,6 +1,6 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
 
 class ProjectReq extends Model {
   static isUUID(id) {

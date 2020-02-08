@@ -12,7 +12,7 @@
     "dev": "nodemon index.js",
     "preshare": "npm list -g ngrok ||  npm i -g ngrok",
     "share": "ngrok http 5000",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -49,15 +49,23 @@
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-prettier": "^3.1.2",
+    "jest": "^25.1.0",
     "jsdoc": "^3.6.3",
     "nodemon": "^2.0.2",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "supertest": "^4.0.2"
   },
   "nodemonConfig": {
     "ignore": [
       "public",
       "public/*"
     ],
+    "jest": {
+      "testEnvironment": "node",
+      "coveragePathIgnorePatterns": [
+        "/node_modules/"
+      ]
+    },
     "delay": "2500"
   }
 }

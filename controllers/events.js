@@ -1,6 +1,7 @@
 const Event = require('../models/Event');
 const AppError = require('../utils/AppError');
 const { removeImg } = require('../utils/fsManipulations');
+const Tag = require('../models/Tag');
 
 /**
  * get all the events can pass pagination
@@ -23,7 +24,11 @@ exports.getEvents = async (req, res) => {
  * get event by passing the primary key via the param id.
  */
 exports.getEvent = async (req, res) => {
-  const event = await Event.findByPk(req.params.id, { raw: true });
+  const event = await Event.findByPk(req.params.id, {
+    include: 'tags',
+    raw: true,
+    nest: true
+  });
   // validate if event exists
   if (!event) {
     throw new AppError('The event with the given ID was not found.', 404);
@@ -63,13 +68,23 @@ exports.createEvent = async (req, res) => {
 };
 
 exports.updateEvent = async (req, res) => {
-  const event = await Event.findByPk(req.params.id);
+  const event = await Event.findByPk(req.params.id, { include: 'tags' });
   // check if the event exists
   if (!event) throw new AppError('The event with the given ID was not found.', 404);
 
-  // remove the old image
   removeImg(event.image);
+  await Tag.destroy({ where: { projectId: req.params.id } });
+
+  if (req.body.tags) {
+    req.body.tags.forEach(tag => {
+      tag.devProfileId = req.params.id;
+    });
+    await Tag.bulkCreate(req.body.tags);
+  }
+
+  // remove the old image
   await event.update(req.body);
+  await event.reload({ include: 'tags' });
 
   res.send(event);
 };

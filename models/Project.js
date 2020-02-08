@@ -1,6 +1,8 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
+const Tag = require('../models/Tag');
+const Link = require('../models/Link');
 
 class Project extends Model {
   static isUUID(id) {
@@ -46,5 +48,11 @@ Project.init(
   },
   { sequelize }
 );
+
+Project.hasMany(Tag);
+Tag.belongsTo(Project);
+
+Project.hasMany(Link);
+Link.belongsTo(Project);
 
 module.exports = Project;

@@ -1,7 +1,7 @@
 const DevProfile = require('../models/DevProfile');
 const AppError = require('../utils/AppError');
 const { removeImg } = require('../utils/fsManipulations');
-const Social = require('../models/Social');
+const Social = require('../models/Link');
 
 /**
  * get all the developer profiles can pass
@@ -24,7 +24,11 @@ exports.getDevProfiles = async (req, res) => {
  * get developer profile by passing the primary key via the param id.
  */
 exports.getDevProfile = async (req, res) => {
-  const devProfile = await DevProfile.findByPk(req.params.id, { include: 'socials' });
+  const devProfile = await DevProfile.findByPk(req.params.id, {
+    include: 'socials',
+    raw: true,
+    nest: true
+  });
   // validate if developer profile exists
   if (!devProfile) {
     throw new AppError('The developer profile with the given ID was not found.', 404);
@@ -83,8 +87,11 @@ exports.updateDevProfile = async (req, res) => {
   // check if the profile exists
   if (!devProfile)
     throw new AppError('The developer profile with the given ID was not found.', 404);
+  // remove old image
+  removeImg(devProfile.image);
   // recreate the social tags
   await Social.destroy({ where: { devProfileId: req.params.id } });
+
   if (req.body.socials) {
     req.body.socials.forEach(social => {
       social.devProfileId = req.params.id;
@@ -92,7 +99,7 @@ exports.updateDevProfile = async (req, res) => {
     await Social.bulkCreate(req.body.socials);
   }
   // save devProfile changes
-  await devProfile.update();
+  await devProfile.update(req.body);
   // refresh and get the updated version of the instance
   await devProfile.reload({ include: { all: true } });
 

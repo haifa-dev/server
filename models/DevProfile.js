@@ -1,7 +1,7 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
-const sequelize = require('../config/database');
-const Social = require('./Social');
+const sequelize = require('../config/sequelize');
+const Link = require('./Link');
 
 class DevProfile extends Model {
   static validateAll(devProfile) {
@@ -82,7 +82,7 @@ const associationParams = {
   foreignKey: { name: 'devProfileId', allowNull: false }
 };
 
-DevProfile.hasMany(Social, associationParams);
-Social.belongsTo(DevProfile, associationParams);
+DevProfile.hasMany(Link, associationParams);
+Link.belongsTo(DevProfile, associationParams);
 
 module.exports = DevProfile;

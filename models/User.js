@@ -2,7 +2,7 @@ const { Model, DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Joi = require('@hapi/joi');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
 
 class User extends Model {
   static async validateAll(user) {

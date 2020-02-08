@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
 
-const Social = sequelize.define('Social', {
+const Social = sequelize.define('Link', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,

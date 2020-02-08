@@ -29,8 +29,6 @@ function injectAsyncErrorWrapper(controller) {
   });
 }
 
-Object.values(controllers).forEach(controller =>
-  injectAsyncErrorWrapper(controller)
-);
+Object.values(controllers).forEach(controller => injectAsyncErrorWrapper(controller));
 
 module.exports = controllers;

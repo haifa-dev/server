@@ -1,6 +1,6 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
 const Tag = require('./Tag');
 
 class Event extends Model {
@@ -68,11 +68,6 @@ Event.init(
   },
   { sequelize }
 );
-
-// const associationParams = { as: 'tags', foreignKey: 'tagId' };
-
-// DevProfile.hasMany(Social, associationParams);
-// Social.belongsTo(DevProfile, associationParams);
 
 Event.hasMany(Tag);
 Tag.belongsTo(Event);
