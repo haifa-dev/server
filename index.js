@@ -1,19 +1,28 @@
-const express = require('express');
+const { log, error } = console;
+const PORT = process.env.PORT || 5000;
 
-const app = express();
+process.on('uncaughtException', err => {
+  error('Uncaught Exception:', err);
+  process.exit(1);
+});
 
-// handle uncaught expectations and integrate loggers.
-require('./services/logger')(app);
+const app = require('express')();
 // load environment variables
 require('dotenv').config();
 // database initialization
-require('./config/database')();
+const sequelize = require('./config/sequelize');
+// logging database queries and http requests
+require('./services/logger')(app, sequelize);
 // routes
 require('./routes')(app);
-// ::WARNING:: IF YOU CHANGE PORT ADJUST PACKAGE.JSON
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`); // eslint-disable-line
+// ::WARNING:: IF YOU CHANGE PORT ADJUST PACKAGE.JSON share script accordingly
+const server = app.listen(PORT, () => log(`Listening on port ${PORT}`));
+
+process.on('unhandledRejection', err => {
+  server.close(() => {
+    error('Unhandled Rejection:', err);
+    process.exit(1);
+  });
 });
 
 module.exports = server;

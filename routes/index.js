@@ -13,6 +13,7 @@ module.exports = app => {
   app.use(express.json());
   app.use(express.static(path.join(__dirname, '..', 'public')));
   app.use(cors());
+  app.options('*', cors());
   // routes
   app.use('/api/devProfiles', devProfiles);
   app.use('/api/events', events);

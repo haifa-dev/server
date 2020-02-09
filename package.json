@@ -12,7 +12,7 @@
     "dev": "nodemon index.js",
     "preshare": "npm list -g ngrok ||  npm i -g ngrok",
     "share": "ngrok http 5000",
-    "test": "jest"
+    "test": "NODE_ENV=test jest --verbose --runInBand --detectOpenHandles --watchAll"
   },
   "repository": {
     "type": "git",

@@ -1,24 +1,20 @@
+const chalk = require('chalk');
 const morgan = require('morgan');
 
 const { log, error } = console;
 
-process.on('uncaughtException', err => {
-  error('Uncaught Exception:', err);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', err => {
-  error('Unhandled Rejection:', err);
-
-  // server.close(() => {
-  //   error('Unhandled Rejection:', err);
-  //   process.exit(1);
-  // });
-});
-
-module.exports = app => {
-  if (app.get('env') === 'development') {
-    log('Morgan enabled');
-    app.use(morgan('dev'));
-  }
+module.exports = async (app, sequelize) => {
+  if (app.get('env') === 'development')
+    sequelize
+      .authenticate()
+      .then(() => log('Connection to database established successfully'))
+      .catch(err => {
+        error(
+          `${chalk.red('Error')} Establishing a Database Connection\nError:\t{\n\ttitle: ${
+            err.name
+          }\n\taddress: ${err.parent.address}\n\tport: ${err.parent.port} \n}`
+        );
+        log('Morgan enabled');
+        app.use(morgan('dev'));
+      });
 };

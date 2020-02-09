@@ -9,7 +9,7 @@ module.exports =
       super(message);
       this.statusCode = statusCode;
       this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
-      this.isOperational = true;
+      this.isPlaned = true;
 
       // Prevent the error stack trace from being polluted
       Error.captureStackTrace(this, this.constructor);

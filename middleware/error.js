@@ -10,8 +10,7 @@ const { error } = console;
  */
 const sendErrorProd = (err, res) => {
   // Operational, trusted errors
-  if (err.isOperational)
-    res.status(err.statusCode).send({ status: err.status, message: err.message });
+  if (err.isPlaned) res.status(err.statusCode).send({ status: err.status, message: err.message });
   else {
     // Programing or other unknown errors: don't leek error details
     error(err);
@@ -26,7 +25,7 @@ const sendErrorProd = (err, res) => {
  */
 const sendErrorDev = (err, res) => {
   // log Programing or other unknown errors
-  if (!err.isOperational) error(err);
+  if (!err.isPlaned) error(err);
   res.status(err.statusCode).send({
     status: err.status,
     error: err,
