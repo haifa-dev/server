@@ -46,7 +46,11 @@ module.exports = (err, req, res, next) => {
     removeImg(req.file.path);
   }
 
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined)
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === undefined ||
+    process.env.NODE_ENV === 'test'
+  )
     sendErrorDev(err, res);
   else if (process.env.NODE_ENV === 'production') sendErrorProd(err, res);
 };

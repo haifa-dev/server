@@ -66,6 +66,10 @@ User.init(
       allowNull: false,
       defaultValue: 'unknown',
       validate: { len: [1, 255] }
+    },
+    admin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },
   {

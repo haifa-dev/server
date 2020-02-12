@@ -4,9 +4,11 @@ const app = require('../../index');
 const sequelize = require('../../config/sequelize');
 const request = supertest(app);
 const DevProfile = require('../../models/DevProfile');
+const faker = require('faker');
 
 beforeAll(async done => {
   await sequelize.authenticate();
+  await sequelize.sync({ force: true });
   console.log('Connection to database established successfully');
   done();
 });
@@ -19,30 +21,35 @@ afterAll(async done => {
 
 describe('/api/devProfiles', () => {
   beforeEach(async done => {
-    await sequelize.sync({ force: true });
-    console.log('Database drop and recreate all tables.');
     done();
   });
-  afterEach(() => {});
+  afterEach(async () => {
+    return await DevProfile.destroy({ where: {} });
+  });
 
   describe('GET /', () => {
     it('should return all developers Profiles', async done => {
-      await DevProfile.create(
-        {
-          name: 'test',
-          bio: 'regfewrhrewhrwhrw',
-          email: 'sergfwfffafay@rgmail.com',
-          image: 'public/img/99560482-731a-4c17-bbde-9a6239581957.png',
-          socials: [{ name: 'test', url: 'https://www.facebook.com/fegeg' }]
-        },
-        {
-          include: { all: true }
-        }
-      );
+      let name;
+      for (let i = 0; i < 10; i++) {
+        name = faker.name.findName();
+        await DevProfile.create(
+          {
+            name,
+            bio: faker.name.title(),
+            email: faker.internet.email(),
+            image: `public/img/${faker.random.uuid()}.png`,
+            socials: [{ name: faker.name.title(), url: faker.internet.url() }]
+          },
+          {
+            include: { all: true }
+          }
+        );
+      }
+
       const res = await request.get('/api/devProfiles');
 
-      expect(res.body.length).toBe(1);
-      expect(res.body.some(devProfile => devProfile.name === 'test')).toBeTruthy();
+      expect(res.body.length).toBe(10);
+      expect(res.body.some(dp => dp.name === name)).toBeTruthy();
       done();
     });
   });
@@ -51,11 +58,11 @@ describe('/api/devProfiles', () => {
     it('should return a developer profile if valid id is passed', async done => {
       const devProfile = await DevProfile.create(
         {
-          name: 'test',
-          bio: 'regfewrhrewhrwhrw',
-          email: 'sergfwafffafay@rgmail.com',
-          image: 'public/img/99560482-731a-4c17-bbde-9a6239581957.png',
-          socials: [{ name: 'test', url: 'https://www.facebook.com/fegeg' }]
+          name: faker.name.findName(),
+          bio: faker.name.title(),
+          email: faker.internet.email(),
+          image: `public/img/${faker.random.uuid()}.png`,
+          socials: [{ name: faker.name.title(), url: faker.internet.url() }]
         },
         {
           include: { all: true }
@@ -69,18 +76,10 @@ describe('/api/devProfiles', () => {
       done();
     });
 
-    // it('should return 404 if invalid id is passed', async done => {
-    //   // console.log(process.env.NODE_ENV, process.env.DATABASE);
-    //   try {
-    //     const res = await request.get('/api/devProfiles/invalid_id');
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    //   // const res = await request.get('/api/tjtej/');
-    //   // console.log(res.body);
-
-    //   // expect(res.error.statusCode).toBe(404);
-    //   done();
-    // });
+    it('should return 404 if invalid id is passed', async done => {
+      const res = await request.get('/api/devProfiles/' + faker.random.uuid());
+      expect(res.status).toBe(404);
+      done();
+    });
   });
 });

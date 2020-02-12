@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Project = require('../models/Project');
 const AppError = require('../utils/AppError');
 
@@ -23,7 +22,7 @@ exports.getProjects = async (req, res) => {
 /**
  * get a project request by the primary key via the req.params.id
  */
-exports.getProjectByPK = async (req, res) => {
+exports.getProject = async (req, res) => {
   const project = await Project.findByPk(req.params.id, { raw: true });
   // validate dev profiles existence in the database
   if (!project) {
@@ -35,7 +34,7 @@ exports.getProjectByPK = async (req, res) => {
 /**
  * remove a project request if exists
  */
-exports.deleteProjectByPK = async (req, res) => {
+exports.deleteProject = async (req, res) => {
   // find a single user with the id
   const project = await Project.findByPk(req.params.id);
   // validate dev profiles existence in the database
@@ -49,32 +48,31 @@ exports.deleteProjectByPK = async (req, res) => {
 };
 
 /**
+ * middleware validation with ProjectReq schema for req.body
+ */
+exports.validateProject = (req, res, next) => {
+  //  user input validation
+  const { error } = Project.validateAll(req.body);
+  if (error) throw new AppError(error.details[0].message, 400);
+  next();
+};
+
+/**
  * Create new project request if valid
  */
 exports.createProject = async (req, res) => {
-  //  user input validation
-  const { error } = await Project.validateAll(req.body);
-  if (error) {
-    throw new AppError(error.details[0].message, 400);
-  }
-
-  const project = await Project.create(_.pick(req.body, ['title', 'description']));
+  const project = await Project.create(req.body);
   res.status(201).send(project);
 };
 
 exports.updateProject = async (req, res) => {
-  //  user input validation
-  const { error } = await Project.validateAll(req.body);
-  if (error) {
-    throw new AppError(error.details[0].message, 400);
-  }
   const project = await Project.findByPk(req.params.id);
   // check if the request exists
   if (!project) {
     throw new AppError('The project request with the given ID was not found.', 404);
   }
   // remove the old image
-  await project.update(_.pick(req.body, ['title', 'description']));
+  await project.update(req.body);
 
   res.send(project);
 };

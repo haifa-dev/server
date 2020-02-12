@@ -9,13 +9,13 @@ const Tag = require('../models/Tag');
  */
 exports.getEvents = async (req, res) => {
   const { offset, limit } = req.query;
-  const projectParams = { subQuery: true, include: 'tags' };
+  const eventParams = { subQuery: true, include: 'tags' };
 
   // checking for pagination query options
-  if (offset) projectParams.offset = offset;
-  if (limit) projectParams.limit = limit;
+  if (offset) eventParams.offset = offset;
+  if (limit) eventParams.limit = limit;
 
-  const events = await Event.findAll(projectParams);
+  const events = await Event.findAll(eventParams);
 
   res.send(events);
 };

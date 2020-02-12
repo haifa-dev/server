@@ -1,93 +1,76 @@
 const _ = require('lodash');
 const ProjectReq = require('../models/ProjectReq');
 const AppError = require('../utils/AppError');
-
 /**
- * get all the ProjectReq from the database
- * can pass pagination options offset, limit
- * via req.query
+ * get all the project requests can pass
+ * pagination options offset and limit via query.
  */
 exports.getProjectReqs = async (req, res) => {
   const { offset, limit } = req.query;
-  const projectParam = { raw: true };
+  const projectReqsParams = { subQuery: true, include: { all: true } };
 
   // checking for pagination query options
-  if (offset) projectParam.offset = offset;
-  if (limit) projectParam.limit = limit;
+  if (offset) projectReqsParams.offset = offset;
+  if (limit) projectReqsParams.limit = limit;
 
-  const projectReq = await ProjectReq.findAndCountAll(projectParam);
+  const projectReq = await ProjectReq.findAll(projectReqsParams);
 
   res.send(projectReq);
 };
 
 /**
- * get a project request by the primary key via the req.params.id
+ * get project request by passing the primary key via the param id.
  */
-exports.getProjectReqByPK = async (req, res) => {
-  // check if uuid isValid
-  const { error } = ProjectReq.isUUID(req.params.id);
-  if (error) throw new AppError(error.details[0].message, 400);
-
-  const projectReq = await ProjectReq.findByPk(req.params.id, { raw: true });
-  // validate dev profiles existence in the database
+exports.getProjectReq = async (req, res) => {
+  const projectReq = await ProjectReq.findByPk(req.params.id, {
+    include: 'socials',
+    raw: true,
+    nest: true
+  });
+  // validate if developer profile exists
   if (!projectReq) {
-    throw new AppError('The project request with the given ID was not found.', 404);
+    throw new AppError('The developer profile with the given ID was not found.', 404);
   }
   res.send(projectReq);
 };
 
 /**
- * remove a project request if exists
+ * delete project request by passing the primary key via the param id.
  */
-exports.deleteProjectReqByPK = async (req, res) => {
-  // check if uuid isValid
-  const { error } = ProjectReq.isUUID(req.params.id);
-  if (error) throw new AppError(error.details[0].message, 400);
+exports.deleteProjectReq = async (req, res) => {
   // find a single user with the id
   const projectReq = await ProjectReq.findByPk(req.params.id);
   // validate dev profiles existence in the database
-  if (!projectReq) {
-    throw new AppError('The project request with the given ID was not found.', 404);
-  }
-  // delete the current project request
+  if (!projectReq)
+    throw new AppError('The developer profile with the given ID was not found.', 404);
+
+  // delete the current developer profile
   await projectReq.destroy();
   // send status if successes
   res.sendStatus(204);
 };
 
 /**
- * Create new project request if valid
+ * middleware validation with ProjectReq schema for req.body
+ */
+exports.validateProjectReq = (req, res, next) => {
+  //  user input validation
+  const { error } = ProjectReq.validateAll(req.body);
+  if (error) throw new AppError(error.details[0].message, 400);
+  next();
+};
+
+/**
+ * create new project req with social tags via request body
  */
 exports.createProjectReq = async (req, res) => {
-  //  user input validation
-  const { error } = await ProjectReq.validateAll(req.body);
-  if (error) {
-    throw new AppError(error.details[0].message, 400);
-  }
-  // validate from project request replicates
-  let projectReq = await ProjectReq.findOne({
-    where: { email: req.body.email }
+  const projectReq = await ProjectReq.create(req.body, {
+    include: { all: true }
   });
-  if (projectReq) {
-    throw new AppError('The project request already exists.', 400);
-  }
-  projectReq = await ProjectReq.create(
-    _.pick(req.body, ['date', 'email', 'content', 'submittedBy', 'phone'])
-  );
   res.status(201).send(projectReq);
 };
 
 exports.updateProjectReq = async (req, res) => {
-  // check if uuid isValid
-  const { error: uuidError } = ProjectReq.isUUID(req.params.id);
-  if (uuidError) {
-    throw new AppError(uuidError.details[0].message, 400);
-  }
-  //  user input validation
-  const { error } = await ProjectReq.validateAll(req.body);
-  if (error) {
-    throw new AppError(error.details[0].message, 400);
-  }
   const projectReq = await ProjectReq.findByPk(req.params.id);
   // check if the request exists
   if (!projectReq) {

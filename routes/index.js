@@ -19,6 +19,7 @@ module.exports = app => {
   app.use('/api/events', events);
   app.use('/api/projectReqs', projectReqs);
   app.use('/api/projects', projects);
+  app.get('/test', notFound);
   app.all('*', notFound);
   app.use(error);
 };

@@ -29,7 +29,7 @@ class ProjectReq extends Model {
       phone: Joi.number()
         .positive()
         .integer()
-    }).validateAsync(list);
+    }).validate(list);
   }
 }
 ProjectReq.init(

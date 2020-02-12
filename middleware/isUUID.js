@@ -10,6 +10,6 @@ module.exports = function isUUID(req, res, next) {
       .uuid()
       .required()
   }).validate({ id: req.params.id });
-  if (error) throw new AppError(error.details[0].message, 400);
-  next();
+  if (error) throw next(new AppError(error.details[0].message, 404));
+  return next();
 };

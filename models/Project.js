@@ -21,7 +21,7 @@ class Project extends Model {
         .min(1)
         .max(255),
       description: Joi.string().required()
-    }).validateAsync(list);
+    }).validate(list);
   }
 }
 Project.init(
@@ -41,10 +41,10 @@ Project.init(
         notNull: true
       }
     },
-    description: { type: DataTypes.TEXT, validate: { notEmpty: true } }
-    // preview: {} WHAT IS PREVIEW<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    // links: ANOTHER MODEL
-    // Tags: ANOTHER MODEL
+    description: { type: DataTypes.TEXT, validate: { notEmpty: true } },
+    image: {
+      type: DataTypes.STRING
+    }
   },
   { sequelize }
 );
