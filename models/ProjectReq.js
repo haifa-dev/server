@@ -14,7 +14,7 @@ class ProjectReq extends Model {
   static validateAll(list) {
     return Joi.object({
       id: Joi.string().uuid(),
-      date: Joi.date().required(),
+      date: Joi.date(),
       email: Joi.string()
         .required()
         .email()
@@ -26,9 +26,10 @@ class ProjectReq extends Model {
         .required()
         .min(1)
         .max(255),
-      phone: Joi.number()
-        .positive()
-        .integer()
+      phone: Joi.string()
+        .required()
+        .min(3)
+        .max(255)
     }).validate(list);
   }
 }
@@ -42,7 +43,6 @@ ProjectReq.init(
     },
     email: {
       type: DataTypes.STRING,
-      unique: true,
       allowNull: false,
       validate: {
         isEmail: true,
@@ -54,8 +54,6 @@ ProjectReq.init(
     phone: {
       type: DataTypes.STRING,
       validate: {
-        isInt: true,
-        isNumeric: true,
         len: [3, 255]
       }
     },

@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
-const Social = sequelize.define('Link', {
+const Link = sequelize.define('link', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -14,4 +14,4 @@ const Social = sequelize.define('Link', {
   }
 });
 
-module.exports = Social;
+module.exports = Link;

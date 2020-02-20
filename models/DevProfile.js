@@ -79,7 +79,7 @@ DevProfile.init(
 
 const associationParams = {
   as: 'socials',
-  foreignKey: { name: 'devProfileId', allowNull: false }
+  foreignKey: { name: 'devProfileId' }
 };
 
 DevProfile.hasMany(Link, associationParams);

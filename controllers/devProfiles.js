@@ -25,9 +25,7 @@ exports.getDevProfiles = async (req, res) => {
  */
 exports.getDevProfile = async (req, res) => {
   const devProfile = await DevProfile.findByPk(req.params.id, {
-    include: 'socials',
-    raw: true,
-    nest: true
+    include: 'socials'
   });
   // validate if developer profile exists
   if (!devProfile) {

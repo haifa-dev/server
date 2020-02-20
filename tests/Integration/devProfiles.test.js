@@ -1,85 +1,158 @@
-/* eslint-disable */
+/* eslint-disable node/no-unpublished-require */
+const faker = require('faker');
+const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
-const request = supertest(app);
 const DevProfile = require('../../models/DevProfile');
-const faker = require('faker');
+// const https = require('https');
+// const fs = require('fs');
+// const { removeImg, createRandomImage } = require('../../utils/fsManipulations');
 
-beforeAll(async done => {
-  await sequelize.authenticate();
-  await sequelize.sync({ force: true });
-  console.log('Connection to database established successfully');
-  done();
+let request;
+
+const { log, error } = console;
+
+const createDevProfile = async () => {
+  return await DevProfile.create(
+    {
+      name: faker.name.findName(),
+      bio: faker.name.title(),
+      email: faker.internet.email(),
+      image: `public/img/${faker.random.uuid()}.jpg`,
+      socials: [
+        { name: faker.name.title(), url: faker.internet.url() },
+        { name: faker.name.title(), url: faker.internet.url() }
+      ]
+    },
+    {
+      include: { all: true }
+    }
+  );
+};
+
+const createDevProfiles = async () => {
+  const devProfiles = [];
+  _.times(10, () => {
+    devProfiles.push({
+      name: faker.name.findName(),
+      bio: faker.name.title(),
+      email: faker.internet.email(),
+      image: `public/img/${faker.random.uuid()}.png`,
+      socials: [
+        { name: faker.name.title(), url: faker.internet.url() },
+        { name: faker.name.title(), url: faker.internet.url() }
+      ]
+    });
+  });
+
+  return await DevProfile.bulkCreate(devProfiles, { include: { all: true } });
+};
+beforeAll(async () => {
+  try {
+    request = supertest(app);
+    await sequelize.authenticate();
+    await sequelize.sync({ force: true });
+    log('Connection to database established successfully');
+  } catch (err) {
+    error(err);
+  }
 });
 
-afterAll(async done => {
-  await sequelize.close();
-  app.close();
-  done();
+afterAll(async () => {
+  try {
+    await sequelize.close();
+    app.close();
+  } catch (err) {
+    error(err);
+  }
 });
 
 describe('/api/devProfiles', () => {
-  beforeEach(async done => {
-    done();
+  let devProfiles;
+  beforeEach(async () => {
+    devProfiles = await createDevProfiles();
   });
   afterEach(async () => {
-    return await DevProfile.destroy({ where: {} });
+    await DevProfile.destroy({ where: {} });
   });
 
-  describe('GET /', () => {
-    it('should return all developers Profiles', async done => {
-      let name;
-      for (let i = 0; i < 10; i++) {
-        name = faker.name.findName();
-        await DevProfile.create(
-          {
-            name,
-            bio: faker.name.title(),
-            email: faker.internet.email(),
-            image: `public/img/${faker.random.uuid()}.png`,
-            socials: [{ name: faker.name.title(), url: faker.internet.url() }]
-          },
-          {
-            include: { all: true }
-          }
-        );
-      }
+  const compareDevProfiles = index => devProfile =>
+    devProfile.name === devProfiles[index].name &&
+    devProfile.socials[0].name === devProfiles[index].socials[0].name;
 
+  describe('GET /', () => {
+    beforeEach(async () => {});
+    afterEach(async () => {
+      return await DevProfile.destroy({ where: {} });
+    });
+
+    it('should return all developers Profiles', async () => {
       const res = await request.get('/api/devProfiles');
 
+      expect(res.status).toBe(200);
       expect(res.body.length).toBe(10);
-      expect(res.body.some(dp => dp.name === name)).toBeTruthy();
-      done();
+      expect(res.body.some(compareDevProfiles(0))).toBeTruthy();
+    });
+
+    it('should return offset 5 developer Profiles', async () => {
+      const res = await request.get('/api/devProfiles?offset=5');
+
+      expect(res.body.length).toBe(5);
+      expect(res.body.some(compareDevProfiles(5))).toBeTruthy();
+      expect(res.body.some(compareDevProfiles(0))).toBeFalsy();
+    });
+
+    it('should return limit 2 developer profiles', async () => {
+      const res = await request.get('/api/devProfiles?limit=2');
+
+      expect(res.body.length).toBe(2);
+      expect(res.body.some(compareDevProfiles(0))).toBeTruthy();
+      expect(res.body.some(compareDevProfiles(3))).toBeFalsy();
+    });
+
+    it('should return developer profiles off set 5 and limited to 2', async () => {
+      const res = await request.get('/api/devProfiles?limit=2&offset=5');
+
+      expect(res.body.length).toBe(2);
+      expect(res.body.some(compareDevProfiles(5))).toBeTruthy();
+      expect(res.body.some(compareDevProfiles(8))).toBeFalsy();
+      expect(res.body.some(compareDevProfiles(4))).toBeFalsy();
     });
   });
 
   describe('GET /:id', () => {
-    it('should return a developer profile if valid id is passed', async done => {
-      const devProfile = await DevProfile.create(
-        {
-          name: faker.name.findName(),
-          bio: faker.name.title(),
-          email: faker.internet.email(),
-          image: `public/img/${faker.random.uuid()}.png`,
-          socials: [{ name: faker.name.title(), url: faker.internet.url() }]
-        },
-        {
-          include: { all: true }
-        }
-      );
-
-      const res = await request.get('/api/devProfiles/' + devProfile.id);
+    it('should return a developer profile if valid id is passed', async () => {
+      const devProfile = await await createDevProfile();
+      const res = await request.get(`/api/devProfiles/${devProfile.id}`);
 
       expect(res.status).toBe(200);
+
       expect(res.body).toHaveProperty('name', devProfile.name);
-      done();
+      expect(res.body).toHaveProperty('email', devProfile.email);
+      expect(res.body).toHaveProperty('bio', devProfile.bio);
+      expect(res.body).toHaveProperty('image', devProfile.image);
+      expect(res.body.socials[1]).toHaveProperty('name', devProfile.socials[1].name);
+      expect(res.body.socials[1]).toHaveProperty('url', devProfile.socials[1].url);
     });
 
-    it('should return 404 if invalid id is passed', async done => {
-      const res = await request.get('/api/devProfiles/' + faker.random.uuid());
+    it('should return 404 if invalid id is passed', async () => {
+      const res = await request.get(`/api/devProfiles/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
-      done();
     });
   });
+
+  describe('DELETE /:id', () => {
+    it('should return 204 after removing an image', async () => {
+      // const devProfile = await createDevProfile();
+      // removeImg = jest.mock();
+      // const res = await request.delete(`/api/devProfiles/${devProfile.id}`);
+      // await removeImg(devProfile.image);
+      expect(1).toBe(1);
+    });
+  });
+
+  describe('PUT /:id', () => {});
+
+  describe('POST /', () => {});
 });

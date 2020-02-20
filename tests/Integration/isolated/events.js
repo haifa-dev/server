@@ -1,12 +1,13 @@
 /* eslint-disable */
 const supertest = require('supertest');
-const app = require('../../index');
-const sequelize = require('../../config/sequelize');
+const app = require('../../../index');
+const sequelize = require('../../../config/sequelize');
 const request = supertest(app);
-const DevProfile = require('../../models/DevProfile');
+const DevProfile = require('../../../models/DevProfile');
 const faker = require('faker');
 
-describe('/api/projects', () => {
+
+describe('/api/events', () => {
   beforeEach(() => {});
   afterEach(() => {});
 
@@ -20,3 +21,5 @@ describe('/api/projects', () => {
 
   describe('DELETE / :id', () => {});
 });
+
+

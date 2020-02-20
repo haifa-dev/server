@@ -8,6 +8,7 @@ module.exports = async (app, sequelize) => {
     sequelize
       .authenticate()
       .then(() => {
+        sequelize.sync({ force: true });
         log('Connection to database established successfully');
         log('Morgan enabled');
         app.use(morgan('dev'));

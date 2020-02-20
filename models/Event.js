@@ -33,7 +33,7 @@ class Event extends Model {
             .required()
         })
       )
-    }).validateAsync(list);
+    }).validate(list);
   }
 }
 

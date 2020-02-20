@@ -1,54 +1,57 @@
 const Project = require('../models/Project');
 const AppError = require('../utils/AppError');
+const { removeImg } = require('../utils/fsManipulations');
+const Link = require('../models/Link');
+const Tag = require('../models/Tag');
 
 /**
- * get all the Project from the database
- * can pass pagination options offset, limit
- * via req.query
+ * get all the projects can pass
+ * pagination options offset and limit via query.
  */
 exports.getProjects = async (req, res) => {
   const { offset, limit } = req.query;
-  let project;
+  const projectParams = { subQuery: true, include: { all: true } };
 
   // checking for pagination query options
-  if (offset && limit) project = await Project.findAndCountAll({ offset, limit, raw: true });
-  else if (offset) project = await Project.findAndCountAll({ offset, raw: true });
-  else if (limit) project = await Project.findAndCountAll({ limit, raw: true });
-  else project = await Project.findAndCountAll({ raw: true });
+  if (offset) projectParams.offset = offset;
+  if (limit) projectParams.limit = limit;
 
-  res.send(project);
+  const projects = await Project.findAll(projectParams);
+
+  res.send(projects);
 };
 
 /**
- * get a project request by the primary key via the req.params.id
+ * get project by passing the primary key via the param id.
  */
 exports.getProject = async (req, res) => {
-  const project = await Project.findByPk(req.params.id, { raw: true });
-  // validate dev profiles existence in the database
-  if (!project) {
-    throw new AppError('The project request with the given ID was not found.', 404);
-  }
+  const project = await Project.findByPk(req.params.id, {
+    include: { all: true }
+  });
+  // validate if project exists
+  if (!project) throw new AppError('The project with the given ID was not found.', 404);
+
   res.send(project);
 };
 
 /**
- * remove a project request if exists
+ * delete project by passing the primary key via the param id.
  */
 exports.deleteProject = async (req, res) => {
   // find a single user with the id
   const project = await Project.findByPk(req.params.id);
   // validate dev profiles existence in the database
-  if (!project) {
-    throw new AppError('The project request with the given ID was not found.', 404);
-  }
-  // delete the current project request
+  if (!project) throw new AppError('The project with the given ID was not found.', 404);
+
+  // delete the current project
+  removeImg(project.image);
   await project.destroy();
   // send status if successes
   res.sendStatus(204);
 };
 
 /**
- * middleware validation with ProjectReq schema for req.body
+ * middleware validation with project schema for req.body
  */
 exports.validateProject = (req, res, next) => {
   //  user input validation
@@ -58,21 +61,49 @@ exports.validateProject = (req, res, next) => {
 };
 
 /**
- * Create new project request if valid
+ * create new project with link tags via request body
  */
 exports.createProject = async (req, res) => {
-  const project = await Project.create(req.body);
+  // validate from project replicates
+  const project = await Project.create(req.body, {
+    include: { all: true }
+  });
   res.status(201).send(project);
 };
 
+/**
+ * find project with primary key via param id and update via request body
+ */
 exports.updateProject = async (req, res) => {
-  const project = await Project.findByPk(req.params.id);
-  // check if the request exists
-  if (!project) {
-    throw new AppError('The project request with the given ID was not found.', 404);
+  const project = await Project.findByPk(req.params.id, { include: { all: true } });
+  // check if the profile exists
+  if (!project) throw new AppError('The project with the given ID was not found.', 404);
+  // remove old image
+  removeImg(project.image);
+  // clear old data
+  await Link.destroy({ where: { projectId: req.params.id } });
+  await Tag.destroy({ where: { ProjectId: req.params.id } });
+
+  // create links if any
+  if (req.body.links) {
+    req.body.links.forEach(link => {
+      link.projectId = req.params.id;
+    });
+    await Link.bulkCreate(req.body.links);
   }
-  // remove the old image
+
+  // create tags if any
+  if (req.body.tags) {
+    req.body.tags.forEach(tag => {
+      tag.ProjectId = req.params.id;
+    });
+    await Tag.bulkCreate(req.body.tags);
+  }
+
+  // save project changes
   await project.update(req.body);
+  // refresh and get the updated version of the instance
+  await project.reload({ include: { all: true } });
 
   res.send(project);
 };

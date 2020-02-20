@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const ProjectReq = require('../models/ProjectReq');
 const AppError = require('../utils/AppError');
 /**
@@ -7,7 +6,7 @@ const AppError = require('../utils/AppError');
  */
 exports.getProjectReqs = async (req, res) => {
   const { offset, limit } = req.query;
-  const projectReqsParams = { subQuery: true, include: { all: true } };
+  const projectReqsParams = { raw: true };
 
   // checking for pagination query options
   if (offset) projectReqsParams.offset = offset;
@@ -22,15 +21,11 @@ exports.getProjectReqs = async (req, res) => {
  * get project request by passing the primary key via the param id.
  */
 exports.getProjectReq = async (req, res) => {
-  const projectReq = await ProjectReq.findByPk(req.params.id, {
-    include: 'socials',
-    raw: true,
-    nest: true
-  });
+  const projectReq = await ProjectReq.findByPk(req.params.id, { raw: true });
   // validate if developer profile exists
-  if (!projectReq) {
+  if (!projectReq)
     throw new AppError('The developer profile with the given ID was not found.', 404);
-  }
+
   res.send(projectReq);
 };
 
@@ -64,9 +59,7 @@ exports.validateProjectReq = (req, res, next) => {
  * create new project req with social tags via request body
  */
 exports.createProjectReq = async (req, res) => {
-  const projectReq = await ProjectReq.create(req.body, {
-    include: { all: true }
-  });
+  const projectReq = await ProjectReq.create(req.body);
   res.status(201).send(projectReq);
 };
 
@@ -77,7 +70,7 @@ exports.updateProjectReq = async (req, res) => {
     throw new AppError('The project request with the given ID was not found.', 404);
   }
   // remove the old image
-  await projectReq.update(_.pick(req.body, ['date', 'email', 'content', 'submittedBy', 'phone']));
+  await projectReq.update(req.body);
 
   res.send(projectReq);
 };
