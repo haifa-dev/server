@@ -1,6 +1,6 @@
 const Event = require('../models/Event');
 const AppError = require('../utils/AppError');
-const { removeImg } = require('../utils/fsManipulations');
+const { removeImg } = require('../utils/FileSystem');
 const Tag = require('../models/Tag');
 
 /**

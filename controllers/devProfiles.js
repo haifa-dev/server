@@ -1,6 +1,6 @@
 const DevProfile = require('../models/DevProfile');
 const AppError = require('../utils/AppError');
-const { removeImg } = require('../utils/fsManipulations');
+const { removeImg } = require('../utils/FileSystem');
 const Social = require('../models/Link');
 
 /**

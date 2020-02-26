@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const faker = require('faker');
 const https = require('https');
+const util = require('util');
 
 /**
  * remove image from the given location
@@ -10,22 +11,21 @@ const https = require('https');
 
 exports.removeImg = imgPath =>
   new Promise((res, rej) => {
-    fs.unlink(path.join(__dirname, '..', imgPath), err => {
-      if (err) rej(err);
+    fs.unlink(path.join(__dirname, '..', imgPath), ex => {
+      if (ex) rej(ex);
       res();
     });
   });
 
-exports.createRandomImage = () => {
+exports.createRandomImage = (imgPath = `public/img/${faker.random.uuid()}.jpg`) => {
   return new Promise((res, rej) => {
     try {
-      const fileName = `public/img/${faker.random.uuid()}.jpg`;
-      const file = fs.createWriteStream(fileName);
+      const file = fs.createWriteStream(imgPath);
       const imageUrl = faker.image.avatar();
       https.get(imageUrl, response => {
         response.pipe(file);
-        response.on('finish', () => {
-          res();
+        response.on('end', () => {
+          res(imgPath);
         });
         response.on('error', err => {
           rej(err);

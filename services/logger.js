@@ -13,11 +13,11 @@ module.exports = async (app, sequelize) => {
         log('Morgan enabled');
         app.use(morgan('dev'));
       })
-      .catch(err => {
+      .catch(ex => {
         error(
           `${chalk.red('Error')} Establishing a Database Connection\nError:\t{\n\ttitle: ${
-            err.name
-          }\n\taddress: ${err.parent.address}\n\tport: ${err.parent.port} \n}`
+            ex.name
+          }\n\taddress: ${ex.parent.address}\n\tport: ${ex.parent.port} \n}`
         );
         process.exit(1);
       });

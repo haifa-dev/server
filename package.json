@@ -27,7 +27,6 @@
   "homepage": "https://github.com/SergwayKhodyachikh/haifa-dev-backend#readme",
   "dependencies": {
     "@hapi/joi": "^17.0.2",
-    "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "chalk": "^3.0.0",
     "cors": "^2.8.5",
@@ -35,6 +34,7 @@
     "express": "^4.17.1",
     "faker": "^4.1.0",
     "fs-extra": "^8.1.0",
+    "helmet": "^3.21.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "morgan": "^1.9.1",

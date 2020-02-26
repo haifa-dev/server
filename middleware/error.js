@@ -1,4 +1,4 @@
-const { removeImg } = require('../utils/fsManipulations');
+const { removeImg } = require('../utils/FileSystem');
 
 const { error } = console;
 

@@ -1,12 +1,13 @@
 const { Model, DataTypes } = require('sequelize');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Joi = require('@hapi/joi');
 const sequelize = require('../config/sequelize');
 
 class User extends Model {
-  static async validateAll(user) {
-    return await Joi.object({
+  static validateAll(user) {
+    return Joi.object({
       id: Joi.string().uuid(),
       email: Joi.string()
         .min(3)
@@ -20,7 +21,25 @@ class User extends Model {
       name: Joi.string()
         .min(1)
         .max(255)
-    }).validateAsync(user);
+    }).validate(user);
+  }
+
+  authUserChanged(authDate) {
+    // saving document can delay after sign jwt token
+    return authDate <= this.getDataValue('updatedAt').getTime() - 1000;
+  }
+
+  async generateResetToken() {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    await this.update({
+      resetToken: crypto
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex'),
+      resetTokenExpires: Date.now() + 20 * 60 * 1000
+    });
+
+    return resetToken;
   }
 
   async comparePassword(password) {
@@ -28,16 +47,15 @@ class User extends Model {
   }
 
   generateAuthToken() {
-    const timestamp = new Date().getTime();
     return jwt.sign(
       {
         sub: this.id,
-        // aud: this.role,
-        iat: timestamp
+        aud: this.role,
+        iat: new Date().getTime()
       },
       process.env.JWT_KEY,
       {
-        expiresIn: '2d'
+        expiresIn: '20d'
       }
     );
   }
@@ -63,13 +81,21 @@ User.init(
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
       defaultValue: 'unknown',
       validate: { len: [1, 255] }
     },
-    admin: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: 'user',
+      validate: {
+        isIn: [['user', 'guide', 'lead-guide', 'admin']]
+      }
+    },
+    resetToken: {
+      type: DataTypes.STRING
+    },
+    resetTokenExpires: {
+      type: DataTypes.DATE
     }
   },
   {

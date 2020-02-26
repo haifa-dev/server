@@ -1,6 +1,6 @@
 const Project = require('../models/Project');
 const AppError = require('../utils/AppError');
-const { removeImg } = require('../utils/fsManipulations');
+const { removeImg } = require('../utils/FileSystem');
 const Link = require('../models/Link');
 const Tag = require('../models/Tag');
 

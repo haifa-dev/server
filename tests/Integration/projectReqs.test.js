@@ -37,8 +37,8 @@ beforeAll(async () => {
     await sequelize.authenticate();
     await sequelize.sync({ force: true });
     log('Connection to database established successfully');
-  } catch (err) {
-    error(err);
+  } catch (ex) {
+    error(ex);
   }
 });
 
@@ -46,8 +46,8 @@ afterAll(async () => {
   try {
     await sequelize.close();
     app.close();
-  } catch (err) {
-    error(err);
+  } catch (ex) {
+    error(ex);
   }
 });
 
@@ -59,15 +59,11 @@ describe('/api/ProjectReqs', () => {
     });
     afterEach(async () => {
       await ProjectReq.destroy({ where: {} });
-    });za
+    });
 
     const compareProjectReqs = index => projectReq =>
       projectReq.submittedBy === projectReqs[index].submittedBy &&
       projectReq.email === projectReqs[index].email;
-
-    afterEach(async () => {
-      return await ProjectReq.destroy({ where: {} });
-    });
 
     it('should return all project requests', async () => {
       const res = await request.get('/api/projectReqs');
@@ -104,8 +100,20 @@ describe('/api/ProjectReqs', () => {
   });
 
   describe('GET /:id', () => {
+    let projectReq;
+    beforeEach(async () => {
+      projectReq = await createProjectReq();
+    });
+    afterEach(async () => {
+      await ProjectReq.destroy({ where: {} });
+    });
+
+    it('should return 404 if invalid id is passed', async () => {
+      const res = await request.get(`/api/ProjectReqs/${faker.random.uuid()}`);
+      expect(res.status).toBe(404);
+    });
+
     it('should return a project request if valid id is passed', async () => {
-      const projectReq = await createProjectReq();
       const res = await request.get(`/api/projectReqs/${projectReq.id}`);
 
       expect(res.status).toBe(200);
@@ -115,86 +123,106 @@ describe('/api/ProjectReqs', () => {
       expect(res.body).toHaveProperty('content', projectReq.content);
       expect(res.body).toHaveProperty('submittedBy', projectReq.submittedBy);
     });
-
-    it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/ProjectReqs/${faker.random.uuid()}`);
-      expect(res.status).toBe(404);
-    });
   });
 
   describe('DELETE /:id', () => {
-    it('should return 204 after removing an image', async () => {
-      const projectReq = await createProjectReq();
+    let projectReq;
+    beforeEach(async () => {
+      projectReq = await createProjectReq();
+    });
+    afterEach(async () => {
+      await ProjectReq.destroy({ where: {} });
+    });
+
+    it('should return 404 if invalid id is passed', async () => {
+      const res = await request.delete(`/api/ProjectReqs/${faker.random.uuid()}`);
+      expect(res.status).toBe(404);
+    });
+
+    it('should return 204 if valid id is passed', async () => {
       const res = await request.delete(`/api/projectReqs/${projectReq.id}`);
       expect(res.status).toBe(204);
     });
   });
 
   describe('POST /', () => {
-    it('should return 400 if invalid properties passed', async () => {
-      const res = await request.post('/api/projectReqs/').send({
-        email: faker.internet.email()
-      });
-      expect(res.status).toBe(400);
-    });
+    let newProjectReq;
 
-    it('should save the project request if it is valid', async () => {
-      const res = await request.post('/api/projectReqs/').send({
+    beforeEach(async () => {
+      newProjectReq = {
         email: faker.internet.email(),
         phone: faker.phone.phoneNumber(),
         date: faker.date.past(),
         content: faker.lorem.paragraph(),
-        submittedBy: faker.name.findName()
-      });
-
-      const projectReq = await ProjectReq.findByPk(res.body.id);
-
-      expect(projectReq).not.toBeNull();
-      expect(res.status).toBe(201);
+        submittedBy: faker.name.title()
+      };
     });
-  });
+    afterEach(async () => {
+      await ProjectReq.destroy({ where: {} });
+    });
 
-  describe('PUT /', () => {
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.put(`/api/ProjectReqs/${faker.random.uuid()}`);
+      const res = await request.post(`/api/ProjectReqs/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
+
     it('should return 400 if invalid properties passed', async () => {
-      log(projectReqs);
-      const res = await request.put(`/api/projectReqs/${projectReqs.id}`).send({
+      const res = await request.post('/api/projectReqs/').send({
         email: faker.internet.email()
       });
       expect(res.status).toBe(400);
     });
+
+    it('should return a project', async () => {
+      const res = await request.post('/api/projectReqs/').send(newProjectReq);
+
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty('email', newProjectReq.email);
+      expect(res.body).toHaveProperty('phone', newProjectReq.phone);
+      // expect(res.body).toHaveProperty('date', newProjectReq.date);
+      expect(res.body).toHaveProperty('content', newProjectReq.content);
+      expect(res.body).toHaveProperty('submittedBy', newProjectReq.submittedBy);
+    });
   });
+  describe('PUT /', () => {
+    let oldProjectReq;
+    let newProjectReq;
 
-  // describe('PUT /:id', () => {
-  //   it('should return 404 if invalid id is passed', async () => {
-  //     const res = await request.put(`/api/ProjectReqs/${faker.random.uuid()}`);
-  //     expect(res.status).toBe(404);
-  //   });
+    beforeEach(async () => {
+      oldProjectReq = await createProjectReq();
+      newProjectReq = {
+        email: faker.internet.email(),
+        phone: faker.phone.phoneNumber(),
+        date: faker.date.past(),
+        content: faker.lorem.paragraph(),
+        submittedBy: faker.name.title()
+      };
+    });
+    afterEach(async () => {
+      await ProjectReq.destroy({ where: {} });
+    });
 
-  //   it('should return a project request if valid parameters passed', async () => {
-  //     const projectReq = await createProjectReq();
-  //     const body = {
-  //       email: 'max@gmail.com',
-  //       phone: '0523334562945',
-  //       date: 'Monday, 17 February 2020',
-  //       content:
-  //         'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus reprehenderit eum nesciunt nostrum facilis, nulla atque, assumenda placeat corporis quidem quia modi architecto voluptates minus omnis, neque soluta ipsam molestias.',
-  //       submittedBy: 'max'
-  //     };
-  //     const res = await request.put(`/api/projectReqs/${projectReq.id}`).send(body);
-  //     log(res.body);
+    it('should return 404 if invalid id is passed', async () => {
+      const res = await request.put(`/api/projectReqs/${faker.random.uuid()}`).send(newProjectReq);
 
-  //     // log(faker.date.past());
+      expect(res.status).toBe(404);
+    });
 
-  //     expect(res.status).toBe(200);
-  //     // expect(res.body).toHaveProperty('email', projectReq.email);
-  //     // expect(res.body).toHaveProperty('phone', projectReq.phone);
-  //     // expect(res.body).toHaveProperty('date', projectReq.date);
-  //     // expect(res.body).toHaveProperty('content', projectReq.content);
-  //     // expect(res.body).toHaveProperty('submittedBy', projectReq.submittedBy);
-  //   });
-  // });
+    it('should return 400 if invalid properties passed', async () => {
+      delete newProjectReq.email;
+      const res = await request.put(`/api/projectReqs/${oldProjectReq.id}`).send(newProjectReq);
+      expect(res.status).toBe(400);
+    });
+
+    it('should return the updated genre if it is valid', async () => {
+      const res = await request.put(`/api/projectReqs/${oldProjectReq.id}`).send(newProjectReq);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('email', newProjectReq.email);
+      expect(res.body).toHaveProperty('phone', newProjectReq.phone);
+      // expect(res.body).toHaveProperty('date', newProjectReq.date);
+      expect(res.body).toHaveProperty('content', newProjectReq.content);
+      expect(res.body).toHaveProperty('submittedBy', newProjectReq.submittedBy);
+    });
+  });
 });
