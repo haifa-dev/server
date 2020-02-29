@@ -276,43 +276,27 @@ describe('/api/devProfiles', () => {
 
   describe('POST /', () => {
     let devProfile;
-    beforeEach(async () => {
+
+    beforeAll(async () => {
       devProfile = {
         name: faker.name.findName(),
         bio: faker.lorem.paragraph(),
         email: faker.internet.email(),
-        image: `public/img/${faker.random.uuid()}.png`,
+        image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
         socials: [
           { name: faker.name.title(), url: faker.internet.url() },
           { name: faker.name.title(), url: faker.internet.url() }
         ]
       };
     });
-    afterEach(async () => {
-      fs.access(devProfile.image, async err => {
-        if (!err) {
-          await destroyDevProfile(devProfile);
-        }
-      });
+    afterAll(async () => {
+      (await util.promisify(fs.access)(devProfile.image)) && (await removeImg(devProfile.image));
+      await devProfile.destroy({ where: {} });
     });
 
-    it('should return 404 if invalid image is passed', async () => {
+    it('should return 400 if DevProfile is invalid', async () => {
       const res = await request
-        .post(`/api/devProfiles/`)
-        .field('name', devProfile.name)
-        .field('bio', devProfile.bio)
-        .field('email', devProfile.email)
-        .field('socials[0][name]', devProfile.socials[0].name)
-        .field('socials[0][url]', devProfile.socials[0].url)
-        .field('socials[1][name]', devProfile.socials[1].name)
-        .field('socials[1][url]', devProfile.socials[1].url);
-
-      expect(res.status).toBe(422);
-    });
-
-    it('should return 400 if invalid field is passed', async () => {
-      const res = await request
-        .post(`/api/devProfiles/`)
+        .post(`/api/DevProfiles/`)
         .field('name', devProfile.name)
         .field('bio', devProfile.bio)
         // .field('email', devProfile.email)
@@ -325,9 +309,9 @@ describe('/api/devProfiles', () => {
       expect(res.status).toBe(400);
     });
 
-    it('should return a developer profile', async () => {
+    it('should return the DevProfile if it is valid', async () => {
       const res = await request
-        .post(`/api/devProfiles/`)
+        .post(`/api/DevProfiles/`)
         .field('name', devProfile.name)
         .field('bio', devProfile.bio)
         .field('email', devProfile.email)
@@ -337,9 +321,7 @@ describe('/api/devProfiles', () => {
         .field('socials[1][url]', devProfile.socials[1].url)
         .attach('image', devProfile.image);
 
-      expect(res.status).toBe(200);
-      expect(res.body.email).toHaveProperty('email', devProfile.email);
-      // expect(res.body).toHaveProperty('email', devProfile.email);
+      expect(res.status).toBe(201);
     });
   });
 });

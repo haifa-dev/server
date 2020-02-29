@@ -6,9 +6,8 @@ const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
-const Project = require('../../models/Project');
+const Event = require('../../models/Event');
 const { removeImg, createRandomImage } = require('../../utils/FileSystem');
-
 
 let request;
 
@@ -35,68 +34,63 @@ const terminateConnection = async () => {
   }
 };
 
-describe('/api/projects', () => {
+describe('/api/events', () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
   describe('GET /', () => {
-    let projects = [];
+    let events = [];
     beforeAll(async () => {
       _.times(10, () => {
-        projects.push({
+        events.push({
           title: faker.name.findName(),
           description: faker.lorem.paragraph(),
           image: `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
+          location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
           tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
         });
       });
-      projects.forEach(project => createRandomImage(project.image));
-      projects = await Project.bulkCreate(projects, { include: { all: true } });
+      events.forEach(event => createRandomImage(event.image));
+      events = await Event.bulkCreate(events, { include: { all: true } });
     });
 
     afterAll(async () => {
-      projects.forEach(project => removeImg(project.image));
-      await Project.destroy({ where: {} });
+      events.forEach(event => removeImg(event.image));
+      await Event.destroy({ where: {} });
     });
-    it('should return all projects', async () => {
-      const res = await request.get('/api/projects');
+    it('should return all Events', async () => {
+      const res = await request.get('/api/events');
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(10);
     });
 
-    it('should return offset 5 projects', async () => {
-      const res = await request.get('/api/projects?offset=5');
+    it('should return offset 5 Events', async () => {
+      const res = await request.get('/api/events?offset=5');
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(5);
     });
 
-    it('should return limit 2 projects', async () => {
-      const res = await request.get('/api/projects?limit=2');
+    it('should return limit 2 Events', async () => {
+      const res = await request.get('/api/events?limit=2');
       expect(res.body.length).toBe(2);
     });
 
-    it('should return projects off set 5 and limited to 2', async () => {
-      const res = await request.get('/api/projects?limit=2&offset=5');
+    it('should return Events off set 5 and limited to 2', async () => {
+      const res = await request.get('/api/events?limit=2&offset=5');
       expect(res.body.length).toBe(2);
     });
   });
 
   describe('GET /:id', () => {
-    let project;
+    let event;
     beforeAll(async () => {
-      project = await Project.create(
+      event = await Event.create(
         {
           title: faker.name.findName(),
+          date: faker.date.past(2),
           description: faker.lorem.paragraph(),
           image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
+          location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
           tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
         },
         {
@@ -105,37 +99,38 @@ describe('/api/projects', () => {
       );
     });
     afterAll(async () => {
-      await removeImg(project.image);
-      await Project.destroy({ where: {} });
+      await removeImg(event.image);
+      await event.destroy({ where: {} });
     });
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/projects/${faker.random.uuid()}`);
+      const res = await request.get(`/api/events/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
-    it('should return a project if valid id is passed', async () => {
-      const res = await request.get(`/api/projects/${project.id}`);
+    it('should return a event if valid id is passed', async () => {
+      const res = await request.get(`/api/events/${event.id}`);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('title', project.title);
-      expect(res.body).toHaveProperty('description', project.description);
-      expect(res.body).toHaveProperty('image', project.image);
+      expect(res.body).toHaveProperty('title', event.title);
+      expect(res.body).toHaveProperty('description', event.description);
+      expect(res.body).toHaveProperty('image', event.image);
+      expect(res.body).toHaveProperty('location', event.location);
+      expect(res.body.tags[0]).toHaveProperty('title', event.tags[0].title);
+      expect(res.body.tags[1]).toHaveProperty('title', event.tags[1].title);
     });
   });
 
   describe('destroy /:id', () => {
-    let project;
+    let event;
     beforeAll(async () => {
-      project = await Project.create(
+      event = await Event.create(
         {
           title: faker.name.findName(),
+          date: faker.date.past(2),
           description: faker.lorem.paragraph(),
           image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
+          location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
           tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
         },
         {
@@ -144,26 +139,26 @@ describe('/api/projects', () => {
       );
     });
     afterAll(async () => {
-      (await util.promisify(fs.access)(project.image)) && (await removeImg(project.image));
-      await Project.destroy({ where: {} });
+      (await util.promisify(fs.access)(event.image)) && (await removeImg(event.image));
+      await event.destroy({ where: {} });
     });
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.delete(`/api/projects/${faker.random.uuid()}`);
+      const res = await request.delete(`/api/events/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return 204 after removing an image', async () => {
-      const res = await request.delete(`/api/projects/${project.id}`);
+      const res = await request.delete(`/api/events/${event.id}`);
       expect(res.status).toBe(204);
     });
   });
 
   describe('POST /', () => {
-    let project;
+    let event;
 
     beforeAll(async () => {
-      project = {
+      event = {
         title: faker.commerce.product(),
         description: faker.lorem.paragraph(),
         image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
@@ -175,49 +170,43 @@ describe('/api/projects', () => {
       };
     });
     afterAll(async () => {
-      (await util.promisify(fs.access)(project.image)) && (await removeImg(project.image));
-      await Project.destroy({ where: {} });
+      (await util.promisify(fs.access)(event.image)) && (await removeImg(event.image));
+      await event.destroy({ where: {} });
     });
 
-    it('should return 400 if project is invalid', async () => {
+    it('should return 400 if event is invalid', async () => {
       const res = await request
-        .post(`/api/projects/`)
-        .field('title', faker.name.title())
-        // .field('description', faker.lorem.paragraph())
-        .field('tags[0][title]', faker.name.title())
-        .field('tags[1][title]', faker.name.title())
-        .field('links[0][name]', faker.name.findName())
-        .field('links[0][url]', faker.internet.url())
-        .field('links[1][name]', faker.name.findName())
-        .field('links[1][url]', faker.internet.url())
-        .attach('image', project.image);
-
-      expect(res.status).toBe(400);
-    });
-
-    it('should return the project if it is valid', async () => {
-      const res = await request
-        .post(`/api/projects/`)
+        .post(`/api/events/`)
+        .field('date', `${faker.date.past(2)}`)
         .field('title', faker.name.title())
         .field('description', faker.lorem.paragraph())
         .field('tags[0][title]', faker.name.title())
         .field('tags[1][title]', faker.name.title())
-        .field('links[0][name]', faker.name.findName())
-        .field('links[0][url]', faker.internet.url())
-        .field('links[1][name]', faker.name.findName())
-        .field('links[1][url]', faker.internet.url())
-        .attach('image', project.image);
+        .attach('image', event.image);
 
+      expect(res.status).toBe(400);
+    });
+
+    it('should return the event if it is valid', async () => {
+      const res = await request
+        .post(`/api/events/`)
+        .field('date', `${faker.date.past(2)}`)
+        .field('title', faker.name.title())
+        .field('description', faker.lorem.paragraph())
+        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
+        .field('tags[0][title]', faker.name.title())
+        .field('tags[1][title]', faker.name.title())
+        .attach('image', event.image);
       expect(res.status).toBe(201);
     });
   });
 
   describe('PUT /:id', () => {
-    let project;
+    let event;
     beforeAll(async () => {
-      project = await Project.create(
+      event = await Event.create(
         {
-          title: faker.name.findName(),
+          title: faker.commerce.product(),
           description: faker.lorem.paragraph(),
           image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
           links: [
@@ -232,54 +221,48 @@ describe('/api/projects', () => {
       );
     });
     afterAll(async () => {
-      await removeImg(project.image);
-      await Project.destroy({ where: {} });
+      await removeImg(event.image);
+      await event.destroy({ where: {} });
     });
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
-        .put(`/api/projects/${faker.random.uuid()}`)
+        .put(`/api/events/${faker.random.uuid()}`)
+        .field('date', `${faker.date.past(2)}`)
         .field('title', faker.name.title())
         .field('description', faker.lorem.paragraph())
+        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
         .field('tags[0][title]', faker.name.title())
         .field('tags[1][title]', faker.name.title())
-        .field('links[0][name]', faker.name.findName())
-        .field('links[0][url]', faker.internet.url())
-        .field('links[1][name]', faker.name.findName())
-        .field('links[1][url]', faker.internet.url())
-        .attach('image', project.image);
+        .attach('image', event.image);
 
       expect(res.status).toBe(404);
     });
 
-    it('should return 400 if project is invalid', async () => {
+    it('should return 400 if event is invalid', async () => {
       const res = await request
-        .put(`/api/projects/${project.id}`)
+        .put(`/api/events/${event.id}`)
+        .field('date', `${faker.date.past(2)}`)
         .field('title', faker.name.title())
         // .field('description', faker.lorem.paragraph())
+        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
         .field('tags[0][title]', faker.name.title())
         .field('tags[1][title]', faker.name.title())
-        .field('links[0][name]', faker.name.findName())
-        .field('links[0][url]', faker.internet.url())
-        .field('links[1][name]', faker.name.findName())
-        .field('links[1][url]', faker.internet.url())
-        .attach('image', project.image);
+        .attach('image', event.image);
 
       expect(res.status).toBe(400);
     });
 
-    it('should return the project if it is valid', async () => {
+    it('should return the event if it is valid', async () => {
       const res = await request
-        .put(`/api/projects/${project.id}`)
+        .put(`/api/events/${event.id}`)
+        .field('date', `${faker.date.past(2)}`)
         .field('title', faker.name.title())
         .field('description', faker.lorem.paragraph())
+        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
         .field('tags[0][title]', faker.name.title())
         .field('tags[1][title]', faker.name.title())
-        .field('links[0][name]', faker.name.findName())
-        .field('links[0][url]', faker.internet.url())
-        .field('links[1][name]', faker.name.findName())
-        .field('links[1][url]', faker.internet.url())
-        .attach('image', project.image);
+        .attach('image', event.image);
 
       expect(res.status).toBe(200);
     });

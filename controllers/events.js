@@ -25,9 +25,7 @@ exports.getEvents = async (req, res) => {
  */
 exports.getEvent = async (req, res) => {
   const event = await Event.findByPk(req.params.id, {
-    include: 'tags',
-    raw: true,
-    nest: true
+    include: 'tags'
   });
   // validate if event exists
   if (!event) {
@@ -73,7 +71,7 @@ exports.updateEvent = async (req, res) => {
   if (!event) throw new AppError('The event with the given ID was not found.', 404);
 
   removeImg(event.image);
-  await Tag.destroy({ where: { projectId: req.params.id } });
+  await Tag.destroy({ where: { EventId: req.params.id } });
 
   if (req.body.tags) {
     req.body.tags.forEach(tag => {
