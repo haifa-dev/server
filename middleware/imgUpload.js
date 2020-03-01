@@ -26,7 +26,7 @@ const fileFilter = (req, file, cb) => {
  */
 const imgInserted = (req, res, next) => {
   if (!req.file) throw new AppError('Attached file is not an image', 422);
-  req.body.image = req.file.path;
+  req.body.image = `img/${req.file.filename}`;
   next();
 };
 

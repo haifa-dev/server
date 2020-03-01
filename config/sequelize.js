@@ -14,7 +14,7 @@ module.exports = new Sequelize(
     logging:
       env === 'development' || env === undefined
         ? query => {
-            log(chalk.cyan(query));
+            log(chalk.cyan(`\n${query}\n`));
           }
         : false,
     define: {

@@ -1,13 +1,12 @@
 /* eslint-disable node/no-unpublished-require */
-const fs = require('fs');
-const util = require('util');
 const faker = require('faker');
 const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
 const Event = require('../../models/Event');
-const { removeImg, createRandomImage } = require('../../utils/FileSystem');
+const { removeImg } = require('../../utils/fileSystem');
+const { generateEvent } = require('../../utils/generateData');
 
 let request;
 
@@ -34,30 +33,36 @@ const terminateConnection = async () => {
   }
 };
 
+const insertEvent = async () =>
+  await Event.create(await generateEvent(), { include: { all: true } });
+
+const insertEvents = async () => {
+  const events = [];
+  await Promise.all(
+    _.times(10, async () => {
+      events.push(await generateEvent());
+    })
+  );
+  return await Event.bulkCreate(events, { include: { all: true } });
+};
+
+const destroyEvents = async () => {
+  const events = await Event.findAll();
+  await Promise.all(events.map(async event => await removeImg(event.image)));
+  await Event.destroy({ where: {} });
+};
+
 describe('/api/events', () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
   describe('GET /', () => {
-    let events = [];
+    let events;
     beforeAll(async () => {
-      _.times(10, () => {
-        events.push({
-          title: faker.name.findName(),
-          description: faker.lorem.paragraph(),
-          image: `public/img/${faker.random.uuid()}.jpg`,
-          location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        });
-      });
-      events.forEach(event => createRandomImage(event.image));
-      events = await Event.bulkCreate(events, { include: { all: true } });
+      events = await insertEvents();
     });
+    afterAll(async () => await destroyEvents(events));
 
-    afterAll(async () => {
-      events.forEach(event => removeImg(event.image));
-      await Event.destroy({ where: {} });
-    });
     it('should return all Events', async () => {
       const res = await request.get('/api/events');
       expect(res.status).toBe(200);
@@ -83,25 +88,10 @@ describe('/api/events', () => {
 
   describe('GET /:id', () => {
     let event;
-    beforeAll(async () => {
-      event = await Event.create(
-        {
-          title: faker.name.findName(),
-          date: faker.date.past(2),
-          description: faker.lorem.paragraph(),
-          image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        },
-        {
-          include: { all: true }
-        }
-      );
+    beforeEach(async () => {
+      event = await insertEvent();
     });
-    afterAll(async () => {
-      await removeImg(event.image);
-      await event.destroy({ where: {} });
-    });
+    afterEach(async () => await destroyEvents());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request.get(`/api/events/${faker.random.uuid()}`);
@@ -116,32 +106,15 @@ describe('/api/events', () => {
       expect(res.body).toHaveProperty('description', event.description);
       expect(res.body).toHaveProperty('image', event.image);
       expect(res.body).toHaveProperty('location', event.location);
-      expect(res.body.tags[0]).toHaveProperty('title', event.tags[0].title);
-      expect(res.body.tags[1]).toHaveProperty('title', event.tags[1].title);
     });
   });
 
   describe('destroy /:id', () => {
     let event;
-    beforeAll(async () => {
-      event = await Event.create(
-        {
-          title: faker.name.findName(),
-          date: faker.date.past(2),
-          description: faker.lorem.paragraph(),
-          image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        },
-        {
-          include: { all: true }
-        }
-      );
+    beforeEach(async () => {
+      event = await insertEvent();
     });
-    afterAll(async () => {
-      (await util.promisify(fs.access)(event.image)) && (await removeImg(event.image));
-      await event.destroy({ where: {} });
-    });
+    afterEach(async () => await destroyEvents());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request.delete(`/api/events/${faker.random.uuid()}`);
@@ -156,38 +129,28 @@ describe('/api/events', () => {
 
   describe('POST /', () => {
     let event;
-
     beforeAll(async () => {
-      event = {
-        title: faker.commerce.product(),
-        description: faker.lorem.paragraph(),
-        image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-        links: [
-          { name: faker.name.title(), url: faker.internet.url() },
-          { name: faker.name.title(), url: faker.internet.url() }
-        ],
-        tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-      };
+      event = await insertEvent();
     });
-    afterAll(async () => {
-      (await util.promisify(fs.access)(event.image)) && (await removeImg(event.image));
-      await event.destroy({ where: {} });
-    });
+    afterAll(async () => await destroyEvents());
 
-    it('should return 400 if event is invalid', async () => {
+    it('should return 400 if project is invalid', async () => {
       const res = await request
         .post(`/api/events/`)
-        .field('date', `${faker.date.past(2)}`)
         .field('title', faker.name.title())
-        .field('description', faker.lorem.paragraph())
+        // .field('description', faker.lorem.paragraph())
         .field('tags[0][title]', faker.name.title())
         .field('tags[1][title]', faker.name.title())
+        .field('links[0][name]', faker.name.findName())
+        .field('links[0][url]', faker.internet.url())
+        .field('links[1][name]', faker.name.findName())
+        .field('links[1][url]', faker.internet.url())
         .attach('image', event.image);
 
       expect(res.status).toBe(400);
     });
 
-    it('should return the event if it is valid', async () => {
+    it('should return the project if it is valid', async () => {
       const res = await request
         .post(`/api/events/`)
         .field('date', `${faker.date.past(2)}`)
@@ -197,33 +160,17 @@ describe('/api/events', () => {
         .field('tags[0][title]', faker.name.title())
         .field('tags[1][title]', faker.name.title())
         .attach('image', event.image);
+
       expect(res.status).toBe(201);
     });
   });
 
   describe('PUT /:id', () => {
     let event;
-    beforeAll(async () => {
-      event = await Event.create(
-        {
-          title: faker.commerce.product(),
-          description: faker.lorem.paragraph(),
-          image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        },
-        {
-          include: { all: true }
-        }
-      );
+    beforeEach(async () => {
+      event = await insertEvent();
     });
-    afterAll(async () => {
-      await removeImg(event.image);
-      await event.destroy({ where: {} });
-    });
+    afterEach(async () => await destroyEvents());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
@@ -239,12 +186,12 @@ describe('/api/events', () => {
       expect(res.status).toBe(404);
     });
 
-    it('should return 400 if event is invalid', async () => {
+    it('should return 400 if project is invalid', async () => {
       const res = await request
         .put(`/api/events/${event.id}`)
         .field('date', `${faker.date.past(2)}`)
-        .field('title', faker.name.title())
-        // .field('description', faker.lorem.paragraph())
+        // .field('title', faker.name.title())
+        .field('description', faker.lorem.paragraph())
         .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
         .field('tags[0][title]', faker.name.title())
         .field('tags[1][title]', faker.name.title())
@@ -253,7 +200,7 @@ describe('/api/events', () => {
       expect(res.status).toBe(400);
     });
 
-    it('should return the event if it is valid', async () => {
+    it('should return the project if it is valid', async () => {
       const res = await request
         .put(`/api/events/${event.id}`)
         .field('date', `${faker.date.past(2)}`)

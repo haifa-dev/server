@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "db:create": "node ./db/seeds.js DATA_RANGE=5,4",
     "preshare": "npm list -g ngrok ||  npm i -g ngrok",
     "share": "ngrok http 5000",
     "test": "NODE_ENV=test jest --verbose --runInBand --detectOpenHandles --watchAll"

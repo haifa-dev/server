@@ -1,6 +1,6 @@
 const Project = require('../models/Project');
 const AppError = require('../utils/AppError');
-const { removeImg } = require('../utils/FileSystem');
+const { removeImg } = require('../utils/fileSystem');
 const Link = require('../models/Link');
 const Tag = require('../models/Tag');
 
@@ -44,8 +44,9 @@ exports.deleteProject = async (req, res) => {
   if (!project) throw new AppError('The project with the given ID was not found.', 404);
 
   // delete the current project
-  removeImg(project.image);
+  await removeImg(project.image);
   await project.destroy();
+  
   // send status if successes
   res.sendStatus(204);
 };
@@ -79,7 +80,7 @@ exports.updateProject = async (req, res) => {
   // check if the profile exists
   if (!project) throw new AppError('The project with the given ID was not found.', 404);
   // remove old image
-  removeImg(project.image);
+  await removeImg(project.image);
   // clear old data
   await Link.destroy({ where: { projectId: req.params.id } });
   await Tag.destroy({ where: { ProjectId: req.params.id } });

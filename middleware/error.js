@@ -1,4 +1,4 @@
-const { removeImg } = require('../utils/FileSystem');
+const { removeImg } = require('../utils/fileSystem');
 
 const { error } = console;
 

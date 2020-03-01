@@ -1,36 +1,32 @@
 /* eslint-disable node/no-unpublished-require */
 const faker = require('faker');
 const supertest = require('supertest');
+const _ = require('lodash');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
 const ProjectReq = require('../../models/ProjectReq');
+const { generateProjectReq } = require('../../utils/generateData');
 
 let request;
 
 const { log, error } = console;
 
-const createProjectReq = async () =>
-  await ProjectReq.create({
-    email: faker.internet.email(),
-    phone: faker.phone.phoneNumber(),
-    date: faker.date.past(),
-    content: faker.lorem.paragraph(),
-    submittedBy: faker.name.title()
-  });
+const createProjectReq = async () => await ProjectReq.create(generateProjectReq());
 
 const createProjectReqs = async () => {
-  const ProjectReqs = [];
-  for (let i = 0; i < 10; i++) {
-    ProjectReqs.push({
-      email: faker.internet.email(),
-      phone: faker.phone.phoneNumber(),
-      date: faker.date.past(),
-      content: faker.lorem.paragraph(),
-      submittedBy: faker.name.title()
-    });
-  }
-  return await ProjectReq.bulkCreate(ProjectReqs);
+  const projectReqs = [];
+
+  _.times(10, () => {
+    projectReqs.push(generateProjectReq());
+  });
+
+  return await ProjectReq.bulkCreate(projectReqs);
 };
+
+const destroyProjectReqs = async () => {
+  await ProjectReq.destroy({ where: {} });
+};
+
 beforeAll(async () => {
   try {
     request = supertest(app);
@@ -57,9 +53,7 @@ describe('/api/ProjectReqs', () => {
     beforeEach(async () => {
       projectReqs = await createProjectReqs();
     });
-    afterEach(async () => {
-      await ProjectReq.destroy({ where: {} });
-    });
+    afterEach(async () => await destroyProjectReqs());
 
     const compareProjectReqs = index => projectReq =>
       projectReq.submittedBy === projectReqs[index].submittedBy &&
@@ -105,7 +99,7 @@ describe('/api/ProjectReqs', () => {
       projectReq = await createProjectReq();
     });
     afterEach(async () => {
-      await ProjectReq.destroy({ where: {} });
+      await destroyProjectReqs();
     });
 
     it('should return 404 if invalid id is passed', async () => {
@@ -131,7 +125,7 @@ describe('/api/ProjectReqs', () => {
       projectReq = await createProjectReq();
     });
     afterEach(async () => {
-      await ProjectReq.destroy({ where: {} });
+      await destroyProjectReqs();
     });
 
     it('should return 404 if invalid id is passed', async () => {
@@ -149,16 +143,10 @@ describe('/api/ProjectReqs', () => {
     let newProjectReq;
 
     beforeEach(async () => {
-      newProjectReq = {
-        email: faker.internet.email(),
-        phone: faker.phone.phoneNumber(),
-        date: faker.date.past(),
-        content: faker.lorem.paragraph(),
-        submittedBy: faker.name.title()
-      };
+      newProjectReq = generateProjectReq();
     });
     afterEach(async () => {
-      await ProjectReq.destroy({ where: {} });
+      await destroyProjectReqs();
     });
 
     it('should return 404 if invalid id is passed', async () => {
@@ -190,16 +178,10 @@ describe('/api/ProjectReqs', () => {
 
     beforeEach(async () => {
       oldProjectReq = await createProjectReq();
-      newProjectReq = {
-        email: faker.internet.email(),
-        phone: faker.phone.phoneNumber(),
-        date: faker.date.past(),
-        content: faker.lorem.paragraph(),
-        submittedBy: faker.name.title()
-      };
+      newProjectReq = generateProjectReq();
     });
     afterEach(async () => {
-      await ProjectReq.destroy({ where: {} });
+      await destroyProjectReqs();
     });
 
     it('should return 404 if invalid id is passed', async () => {

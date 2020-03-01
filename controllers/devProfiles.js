@@ -1,6 +1,6 @@
 const DevProfile = require('../models/DevProfile');
 const AppError = require('../utils/AppError');
-const { removeImg } = require('../utils/FileSystem');
+const { removeImg } = require('../utils/fileSystem');
 const Social = require('../models/Link');
 
 /**
@@ -58,6 +58,7 @@ exports.validateDevProfile = (req, res, next) => {
   //  user input validation
   const { error } = DevProfile.validateAll(req.body);
   if (error) throw new AppError(error.details[0].message, 400);
+
   next();
 };
 
@@ -74,6 +75,7 @@ exports.createDevProfile = async (req, res) => {
   devProfile = await DevProfile.create(req.body, {
     include: { all: true }
   });
+
   res.status(201).send(devProfile);
 };
 

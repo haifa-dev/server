@@ -1,14 +1,12 @@
 /* eslint-disable node/no-unpublished-require */
-const fs = require('fs');
-const util = require('util');
 const faker = require('faker');
 const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
 const Project = require('../../models/Project');
-const { removeImg, createRandomImage } = require('../../utils/FileSystem');
-
+const { removeImg } = require('../../utils/fileSystem');
+const { generateProject } = require('../../utils/generateData');
 
 let request;
 
@@ -35,33 +33,36 @@ const terminateConnection = async () => {
   }
 };
 
+const insertProject = async () =>
+  await Project.create(await generateProject(), { include: { all: true } });
+
+const insertProjects = async () => {
+  const projects = [];
+  await Promise.all(
+    _.times(10, async () => {
+      projects.push(await generateProject());
+    })
+  );
+  return await Project.bulkCreate(projects, { include: { all: true } });
+};
+
+const destroyProjects = async () => {
+  const projects = await Project.findAll();
+  await Promise.all(projects.map(async project => await removeImg(project.image)));
+  await Project.destroy({ where: {} });
+};
+
 describe('/api/projects', () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
   describe('GET /', () => {
-    let projects = [];
+    let projects;
     beforeAll(async () => {
-      _.times(10, () => {
-        projects.push({
-          title: faker.name.findName(),
-          description: faker.lorem.paragraph(),
-          image: `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        });
-      });
-      projects.forEach(project => createRandomImage(project.image));
-      projects = await Project.bulkCreate(projects, { include: { all: true } });
+      projects = await insertProjects();
     });
+    afterAll(async () => await destroyProjects(projects));
 
-    afterAll(async () => {
-      projects.forEach(project => removeImg(project.image));
-      await Project.destroy({ where: {} });
-    });
     it('should return all projects', async () => {
       const res = await request.get('/api/projects');
       expect(res.status).toBe(200);
@@ -87,27 +88,10 @@ describe('/api/projects', () => {
 
   describe('GET /:id', () => {
     let project;
-    beforeAll(async () => {
-      project = await Project.create(
-        {
-          title: faker.name.findName(),
-          description: faker.lorem.paragraph(),
-          image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        },
-        {
-          include: { all: true }
-        }
-      );
+    beforeEach(async () => {
+      project = await insertProject();
     });
-    afterAll(async () => {
-      await removeImg(project.image);
-      await Project.destroy({ where: {} });
-    });
+    afterEach(async () => await destroyProjects());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request.get(`/api/projects/${faker.random.uuid()}`);
@@ -126,27 +110,10 @@ describe('/api/projects', () => {
 
   describe('destroy /:id', () => {
     let project;
-    beforeAll(async () => {
-      project = await Project.create(
-        {
-          title: faker.name.findName(),
-          description: faker.lorem.paragraph(),
-          image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        },
-        {
-          include: { all: true }
-        }
-      );
+    beforeEach(async () => {
+      project = await insertProject();
     });
-    afterAll(async () => {
-      (await util.promisify(fs.access)(project.image)) && (await removeImg(project.image));
-      await Project.destroy({ where: {} });
-    });
+    afterEach(async () => await destroyProjects());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request.delete(`/api/projects/${faker.random.uuid()}`);
@@ -161,23 +128,10 @@ describe('/api/projects', () => {
 
   describe('POST /', () => {
     let project;
-
     beforeAll(async () => {
-      project = {
-        title: faker.commerce.product(),
-        description: faker.lorem.paragraph(),
-        image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-        links: [
-          { name: faker.name.title(), url: faker.internet.url() },
-          { name: faker.name.title(), url: faker.internet.url() }
-        ],
-        tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-      };
+      project = await insertProject();
     });
-    afterAll(async () => {
-      (await util.promisify(fs.access)(project.image)) && (await removeImg(project.image));
-      await Project.destroy({ where: {} });
-    });
+    afterAll(async () => await destroyProjects());
 
     it('should return 400 if project is invalid', async () => {
       const res = await request
@@ -214,27 +168,10 @@ describe('/api/projects', () => {
 
   describe('PUT /:id', () => {
     let project;
-    beforeAll(async () => {
-      project = await Project.create(
-        {
-          title: faker.name.findName(),
-          description: faker.lorem.paragraph(),
-          image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-          links: [
-            { name: faker.name.title(), url: faker.internet.url() },
-            { name: faker.name.title(), url: faker.internet.url() }
-          ],
-          tags: [{ title: faker.name.title() }, { title: faker.name.title() }]
-        },
-        {
-          include: { all: true }
-        }
-      );
+    beforeEach(async () => {
+      project = await insertProject();
     });
-    afterAll(async () => {
-      await removeImg(project.image);
-      await Project.destroy({ where: {} });
-    });
+    afterEach(async () => await destroyProjects());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request

@@ -5,59 +5,12 @@ const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
 const DevProfile = require('../../models/DevProfile');
-const { removeImg, createRandomImage } = require('../../utils/FileSystem');
-const fs = require('fs');
-const util = require('util');
+const { removeImg } = require('../../utils/fileSystem');
+const { generateDevProfile } = require('../../utils/generateData');
 
 let request;
 
 const { log, error } = console;
-
-const insertDevProfile = async () => {
-  return await DevProfile.create(
-    {
-      name: faker.name.findName(),
-      bio: faker.lorem.paragraph(),
-      email: faker.internet.email(),
-      image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-      socials: [
-        { name: faker.name.title(), url: faker.internet.url() },
-        { name: faker.name.title(), url: faker.internet.url() }
-      ]
-    },
-    {
-      include: { all: true }
-    }
-  );
-};
-
-const destroyDevProfile = async devProfile => {
-  removeImg(devProfile.image);
-  return await devProfile.destroy();
-};
-
-const insertDevProfiles = async () => {
-  const devProfiles = [];
-  _.times(10, () => {
-    devProfiles.push({
-      name: faker.name.findName(),
-      bio: faker.lorem.paragraph(),
-      email: faker.internet.email(),
-      image: `public/img/${faker.random.uuid()}.png`,
-      socials: [
-        { name: faker.name.title(), url: faker.internet.url() },
-        { name: faker.name.title(), url: faker.internet.url() }
-      ]
-    });
-  });
-  devProfiles.forEach(devProfile => createRandomImage(devProfile.image));
-  return await DevProfile.bulkCreate(devProfiles, { include: { all: true } });
-};
-
-const destroyDevProfiles = async devProfiles => {
-  devProfiles.forEach(devProfile => removeImg(devProfile.image));
-  await DevProfile.destroy({ where: {} });
-};
 
 const establishConnection = async () => {
   try {
@@ -67,6 +20,7 @@ const establishConnection = async () => {
     log('Connection to database established successfully');
   } catch (ex) {
     error(ex);
+    process.exit(0);
   }
 };
 
@@ -79,54 +33,56 @@ const terminateConnection = async () => {
   }
 };
 
-beforeAll(establishConnection);
-afterAll(terminateConnection);
+const insertDevProfile = async () =>
+  await DevProfile.create(await generateDevProfile(), { include: { all: true } });
 
-describe('/api/devProfiles', () => {
-  let devProfiles;
-  beforeEach(async () => {
-    devProfiles = await insertDevProfiles();
-  });
-  afterEach(async () => {
-    await destroyDevProfiles(devProfiles);
-  });
+const insertDevProfiles = async () => {
+  const devProfiles = [];
+  await Promise.all(
+    _.times(10, async () => {
+      devProfiles.push(await generateDevProfile());
+    })
+  );
+  return await DevProfile.bulkCreate(devProfiles, { include: { all: true } });
+};
 
-  const compareDevProfiles = index => devProfile =>
-    devProfile.name === devProfiles[index].name &&
-    devProfile.socials[0].name === devProfiles[index].socials[0].name;
+const destroyDevProfiles = async () => {
+  const devProfiles = await DevProfile.findAll();
+  await Promise.all(devProfiles.map(async devProfile => await removeImg(devProfile.image)));
+  await DevProfile.destroy({ where: {} });
+};
+
+describe('/api/DevProfiles', () => {
+  beforeAll(establishConnection);
+  afterAll(terminateConnection);
 
   describe('GET /', () => {
-    it('should return all developers Profiles', async () => {
-      const res = await request.get('/api/devProfiles');
+    let devProfiles;
+    beforeAll(async () => {
+      devProfiles = await insertDevProfiles();
+    });
+    afterAll(async () => await destroyDevProfiles(devProfiles));
 
+    it('should return all DevProfiles', async () => {
+      const res = await request.get('/api/DevProfiles');
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(10);
-      expect(res.body.some(compareDevProfiles(0))).toBeTruthy();
     });
 
-    it('should return offset 5 developer Profiles', async () => {
-      const res = await request.get('/api/devProfiles?offset=5');
-
+    it('should return offset 5 DevProfiles', async () => {
+      const res = await request.get('/api/DevProfiles?offset=5');
+      expect(res.status).toBe(200);
       expect(res.body.length).toBe(5);
-      expect(res.body.some(compareDevProfiles(5))).toBeTruthy();
-      expect(res.body.some(compareDevProfiles(0))).toBeFalsy();
     });
 
-    it('should return limit 2 developer profiles', async () => {
-      const res = await request.get('/api/devProfiles?limit=2');
-
+    it('should return limit 2 DevProfiles', async () => {
+      const res = await request.get('/api/DevProfiles?limit=2');
       expect(res.body.length).toBe(2);
-      expect(res.body.some(compareDevProfiles(0))).toBeTruthy();
-      expect(res.body.some(compareDevProfiles(3))).toBeFalsy();
     });
 
-    it('should return developer profiles off set 5 and limited to 2', async () => {
-      const res = await request.get('/api/devProfiles?limit=2&offset=5');
-
+    it('should return DevProfiles off set 5 and limited to 2', async () => {
+      const res = await request.get('/api/DevProfiles?limit=2&offset=5');
       expect(res.body.length).toBe(2);
-      expect(res.body.some(compareDevProfiles(5))).toBeTruthy();
-      expect(res.body.some(compareDevProfiles(8))).toBeFalsy();
-      expect(res.body.some(compareDevProfiles(4))).toBeFalsy();
     });
   });
 
@@ -135,26 +91,20 @@ describe('/api/devProfiles', () => {
     beforeEach(async () => {
       devProfile = await insertDevProfile();
     });
-    afterEach(async () => {
-      await destroyDevProfile(devProfile);
-    });
+    afterEach(async () => await destroyDevProfiles());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request.get(`/api/devProfiles/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
-    it('should return a developer profile if valid id is passed', async () => {
+    it('should return a DevProfile if valid id is passed', async () => {
       const res = await request.get(`/api/devProfiles/${devProfile.id}`);
 
       expect(res.status).toBe(200);
-
-      expect(res.body).toHaveProperty('name', devProfile.name);
-      expect(res.body).toHaveProperty('email', devProfile.email);
-      expect(res.body).toHaveProperty('bio', devProfile.bio);
-      expect(res.body).toHaveProperty('image', devProfile.image);
-      expect(res.body.socials[1]).toHaveProperty('name', devProfile.socials[1].name);
-      expect(res.body.socials[1]).toHaveProperty('url', devProfile.socials[1].url);
+      expect(res.body).toHaveProperty('title', devProfile.title);
+      expect(res.body).toHaveProperty('description', devProfile.description);
+      expect(res.body).toHaveProperty('location', devProfile.location);
     });
   });
 
@@ -163,16 +113,10 @@ describe('/api/devProfiles', () => {
     beforeEach(async () => {
       devProfile = await insertDevProfile();
     });
-    afterEach(async () => {
-      fs.access(devProfile.image, async err => {
-        if (!err) {
-          await destroyDevProfile(devProfile);
-        }
-      });
-    });
+    afterEach(async () => await destroyDevProfiles());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/devProfiles/${faker.random.uuid()}`);
+      const res = await request.delete(`/api/devProfiles/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
@@ -182,146 +126,93 @@ describe('/api/devProfiles', () => {
     });
   });
 
-  describe('PUT /:id', () => {
-    let oldDevProfile, newDevProfile;
-    beforeEach(async () => {
-      oldDevProfile = await insertDevProfile();
-      newDevProfile = {
-        name: faker.name.findName(),
-        bio: faker.lorem.paragraph(),
-        email: faker.internet.email(),
-        image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-        socials: [
-          { name: faker.name.title(), url: faker.internet.url() },
-          { name: faker.name.title(), url: faker.internet.url() }
-        ]
-      };
+  describe('POST /', () => {
+    let devProfile;
+    beforeAll(async () => {
+      devProfile = await insertDevProfile();
     });
-    afterEach(async () => {
-      fs.access(oldDevProfile.image, async err => {
-        if (!err) {
-          await destroyDevProfile(oldDevProfile);
-        }
-      });
+    afterAll(async () => await destroyDevProfiles());
 
-      fs.access(newDevProfile.image, async err => {
-        if (!err) {
-          await removeImg(newDevProfile.image);
-        }
-      });
+    it('should return 400 if project is invalid', async () => {
+      const res = await request
+        .post(`/api/devProfiles/`)
+        .field('name', faker.name.findName())
+        .field('bio', faker.lorem.paragraph(2))
+        // .field('email', faker.internet.email())
+        .field('socials[0][name]', faker.company.companyName())
+        .field('socials[0][url]', faker.internet.url())
+        .field('socials[1][name]', faker.company.companyName())
+        .field('socials[1][url]', faker.internet.url())
+        .attach('image', `public/${devProfile.image}`);
+
+      expect(res.status).toBe(400);
     });
+
+    it('should return the project if it is valid', async () => {
+      const res = await request
+        .post(`/api/devProfiles/`)
+        .field('name', faker.name.findName())
+        .field('bio', faker.lorem.paragraph(2))
+        .field('email', faker.internet.email())
+        .field('socials[0][name]', faker.company.companyName())
+        .field('socials[0][url]', faker.internet.url())
+        .field('socials[1][name]', faker.company.companyName())
+        .field('socials[1][url]', faker.internet.url())
+        .attach('image', `public/${devProfile.image}`);
+
+      expect(res.status).toBe(201);
+    });
+  });
+
+  describe('PUT /:id', () => {
+    let devProfile;
+    beforeEach(async () => {
+      devProfile = await insertDevProfile();
+    });
+    afterEach(async () => await destroyDevProfiles());
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
         .put(`/api/devProfiles/${faker.random.uuid()}`)
-        .field('name', newDevProfile.name)
-        .field('bio', newDevProfile.bio)
-        .field('email', newDevProfile.email)
-        .field('socials[0][name]', newDevProfile.socials[0].name)
-        .field('socials[0][url]', newDevProfile.socials[0].url)
-        .field('socials[1][name]', newDevProfile.socials[1].name)
-        .field('socials[1][url]', newDevProfile.socials[1].url)
-        .attach('image', newDevProfile.image);
+        .field('name', faker.name.findName())
+        .field('bio', faker.lorem.paragraph(2))
+        .field('email', faker.internet.email())
+        .field('socials[0][name]', faker.company.companyName())
+        .field('socials[0][url]', faker.internet.url())
+        .field('socials[1][name]', faker.company.companyName())
+        .field('socials[1][url]', faker.internet.url())
+        .attach('image', `public/${devProfile.image}`);
 
       expect(res.status).toBe(404);
     });
 
-    it('should return 404 if invalid image is passed', async () => {
+    it('should return 400 if project is invalid', async () => {
       const res = await request
-        .put(`/api/devProfiles/${faker.random.uuid()}`)
-        .field('name', newDevProfile.name)
-        .field('bio', newDevProfile.bio)
-        .field('email', newDevProfile.email)
-        .field('socials[0][name]', newDevProfile.socials[0].name)
-        .field('socials[0][url]', newDevProfile.socials[0].url)
-        .field('socials[1][name]', newDevProfile.socials[1].name)
-        .field('socials[1][url]', newDevProfile.socials[1].url);
-
-      expect(res.status).toBe(422);
-    });
-
-    it('should return 400 if invalid field is passed', async () => {
-      const res = await request
-        .put(`/api/devProfiles/${oldDevProfile.id}`)
-        .field('name', newDevProfile.name)
-        .field('bio', newDevProfile.bio)
-        // .field('email', newDevProfile.email)
-        .field('socials[0][name]', newDevProfile.socials[0].name)
-        .field('socials[0][url]', newDevProfile.socials[0].url)
-        .field('socials[1][name]', newDevProfile.socials[1].name)
-        .field('socials[1][url]', newDevProfile.socials[1].url)
-        .attach('image', newDevProfile.image);
+        .put(`/api/devProfiles/${devProfile.id}`)
+        .field('name', faker.name.findName())
+        .field('bio', faker.lorem.paragraph(2))
+        // .field('email', faker.internet.email())
+        .field('socials[0][name]', faker.company.companyName())
+        .field('socials[0][url]', faker.internet.url())
+        .field('socials[1][name]', faker.company.companyName())
+        .field('socials[1][url]', faker.internet.url())
+        .attach('image', `public/${devProfile.image}`);
 
       expect(res.status).toBe(400);
     });
 
-    it('should return a developer profile', async () => {
+    it('should return the project if it is valid', async () => {
       const res = await request
-        .put(`/api/devProfiles/${oldDevProfile.id}`)
-        .field('name', newDevProfile.name)
-        .field('bio', newDevProfile.bio)
-        .field('email', newDevProfile.email)
-        .field('socials[0][name]', newDevProfile.socials[0].name)
-        .field('socials[0][url]', newDevProfile.socials[0].url)
-        .field('socials[1][name]', newDevProfile.socials[1].name)
-        .field('socials[1][url]', newDevProfile.socials[1].url)
-        .attach('image', newDevProfile.image);
+        .put(`/api/devProfiles/${devProfile.id}`)
+        .field('date', `${faker.date.past(2)}`)
+        .field('title', faker.name.title())
+        .field('description', faker.lorem.paragraph())
+        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
+        .field('tags[0][title]', faker.name.title())
+        .field('tags[1][title]', faker.name.title())
+        .attach('image', `public/${devProfile.image}`);
 
-      const updateDevProfile = await DevProfile.findByPk(oldDevProfile.id);
       expect(res.status).toBe(200);
-      expect(updateDevProfile).toHaveProperty('email', newDevProfile.email);
-      // expect(res.body).toHaveProperty('email', newDevProfile.email);
-    });
-  });
-
-  describe('POST /', () => {
-    let devProfile;
-
-    beforeAll(async () => {
-      devProfile = {
-        name: faker.name.findName(),
-        bio: faker.lorem.paragraph(),
-        email: faker.internet.email(),
-        image: (await createRandomImage()) || `public/img/${faker.random.uuid()}.jpg`,
-        socials: [
-          { name: faker.name.title(), url: faker.internet.url() },
-          { name: faker.name.title(), url: faker.internet.url() }
-        ]
-      };
-    });
-    afterAll(async () => {
-      (await util.promisify(fs.access)(devProfile.image)) && (await removeImg(devProfile.image));
-      await devProfile.destroy({ where: {} });
-    });
-
-    it('should return 400 if DevProfile is invalid', async () => {
-      const res = await request
-        .post(`/api/DevProfiles/`)
-        .field('name', devProfile.name)
-        .field('bio', devProfile.bio)
-        // .field('email', devProfile.email)
-        .field('socials[0][name]', devProfile.socials[0].name)
-        .field('socials[0][url]', devProfile.socials[0].url)
-        .field('socials[1][name]', devProfile.socials[1].name)
-        .field('socials[1][url]', devProfile.socials[1].url)
-        .attach('image', devProfile.image);
-
-      expect(res.status).toBe(400);
-    });
-
-    it('should return the DevProfile if it is valid', async () => {
-      const res = await request
-        .post(`/api/DevProfiles/`)
-        .field('name', devProfile.name)
-        .field('bio', devProfile.bio)
-        .field('email', devProfile.email)
-        .field('socials[0][name]', devProfile.socials[0].name)
-        .field('socials[0][url]', devProfile.socials[0].url)
-        .field('socials[1][name]', devProfile.socials[1].name)
-        .field('socials[1][url]', devProfile.socials[1].url)
-        .attach('image', devProfile.image);
-
-      expect(res.status).toBe(201);
     });
   });
 });
