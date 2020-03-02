@@ -129,59 +129,73 @@ describe('/api/events', () => {
 
   describe('POST /', () => {
     let event;
-    beforeAll(async () => {
-      event = await insertEvent();
+    let image;
+    beforeEach(async () => {
+      event = await generateEvent(true, 2);
+      ({ image } = event);
     });
-    afterAll(async () => await destroyEvents());
+    afterEach(async () => {
+      await removeImg(image);
+      await destroyEvents();
+    });
 
     it('should return 400 if project is invalid', async () => {
-      const res = await request
-        .post(`/api/events/`)
-        .field('title', faker.name.title())
-        // .field('description', faker.lorem.paragraph())
-        .field('tags[0][title]', faker.name.title())
-        .field('tags[1][title]', faker.name.title())
-        .field('links[0][name]', faker.name.findName())
-        .field('links[0][url]', faker.internet.url())
-        .field('links[1][name]', faker.name.findName())
-        .field('links[1][url]', faker.internet.url())
-        .attach('image', event.image);
+      try {
+        const res = await request
+          .post(`/api/events/`)
+          .field('date', `${event.date}`)
+          .field('description', event.description)
+          .field('location', event.location)
+          .field('tags[0][title]', event.tags[0].title)
+          .field('tags[1][title]', event.tags[0].title)
+          .attach('image', `public/${image}`);
 
-      expect(res.status).toBe(400);
+        expect(res.status).toBe(400);
+      } catch (err) {
+        log(err);
+      }
     });
 
     it('should return the project if it is valid', async () => {
       const res = await request
+
         .post(`/api/events/`)
-        .field('date', `${faker.date.past(2)}`)
-        .field('title', faker.name.title())
-        .field('description', faker.lorem.paragraph())
-        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
-        .field('tags[0][title]', faker.name.title())
-        .field('tags[1][title]', faker.name.title())
-        .attach('image', event.image);
+        .field('date', `${event.date}`)
+        .field('title', event.title)
+        .field('description', event.description)
+        .field('location', event.location)
+        .field('tags[0][title]', event.tags[0].title)
+        .field('tags[1][title]', event.tags[0].title)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(201);
     });
   });
 
   describe('PUT /:id', () => {
+    let newEvent;
     let event;
+    let image;
     beforeEach(async () => {
       event = await insertEvent();
+      newEvent = await generateEvent(true, 2);
+      ({ image } = newEvent);
     });
-    afterEach(async () => await destroyEvents());
+    afterEach(async () => {
+      await removeImg(image);
+      await destroyEvents();
+    });
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
         .put(`/api/events/${faker.random.uuid()}`)
-        .field('date', `${faker.date.past(2)}`)
-        .field('title', faker.name.title())
-        .field('description', faker.lorem.paragraph())
-        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
-        .field('tags[0][title]', faker.name.title())
-        .field('tags[1][title]', faker.name.title())
-        .attach('image', event.image);
+        .field('date', `${newEvent.date}`)
+        .field('title', newEvent.title)
+        .field('description', newEvent.description)
+        .field('location', newEvent.location)
+        .field('tags[0][title]', newEvent.tags[0].title)
+        .field('tags[1][title]', newEvent.tags[0].title)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(404);
     });
@@ -189,13 +203,13 @@ describe('/api/events', () => {
     it('should return 400 if project is invalid', async () => {
       const res = await request
         .put(`/api/events/${event.id}`)
-        .field('date', `${faker.date.past(2)}`)
-        // .field('title', faker.name.title())
-        .field('description', faker.lorem.paragraph())
-        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
-        .field('tags[0][title]', faker.name.title())
-        .field('tags[1][title]', faker.name.title())
-        .attach('image', event.image);
+        .field('date', `${newEvent.date}`)
+        // .field('title', event.title)
+        .field('description', newEvent.description)
+        .field('location', newEvent.location)
+        .field('tags[0][title]', newEvent.tags[0].title)
+        .field('tags[1][title]', newEvent.tags[0].title)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(400);
     });
@@ -203,13 +217,13 @@ describe('/api/events', () => {
     it('should return the project if it is valid', async () => {
       const res = await request
         .put(`/api/events/${event.id}`)
-        .field('date', `${faker.date.past(2)}`)
-        .field('title', faker.name.title())
-        .field('description', faker.lorem.paragraph())
-        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
-        .field('tags[0][title]', faker.name.title())
-        .field('tags[1][title]', faker.name.title())
-        .attach('image', event.image);
+        .field('date', `${newEvent.date}`)
+        .field('title', newEvent.title)
+        .field('description', newEvent.description)
+        .field('location', newEvent.location)
+        .field('tags[0][title]', newEvent.tags[0].title)
+        .field('tags[1][title]', newEvent.tags[0].title)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(200);
     });

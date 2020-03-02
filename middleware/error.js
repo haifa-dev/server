@@ -37,13 +37,13 @@ const sendErrorDev = (err, res) => {
 /**
  * Handle express errors base on origin, environment and status code.
  */
-module.exports = (err, req, res, next) => {
+module.exports = async (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
   // clean file if the request failed
-  if (req.file) {
-    removeImg(req.file.path);
+  if (req.body && req.body.image) {
+    await removeImg(req.body.image);
   }
 
   if (

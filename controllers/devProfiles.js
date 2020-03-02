@@ -70,6 +70,7 @@ exports.createDevProfile = async (req, res) => {
   let devProfile = await DevProfile.findOne({
     where: { email: req.body.email }
   });
+
   if (devProfile) throw new AppError('The Developer profile already exists.', 400);
 
   devProfile = await DevProfile.create(req.body, {

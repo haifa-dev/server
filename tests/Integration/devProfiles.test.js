@@ -94,16 +94,17 @@ describe('/api/DevProfiles', () => {
     afterEach(async () => await destroyDevProfiles());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/devProfiles/${faker.random.uuid()}`);
+      const res = await request.get(`/api/DevProfiles/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return a DevProfile if valid id is passed', async () => {
-      const res = await request.get(`/api/devProfiles/${devProfile.id}`);
+      const res = await request.get(`/api/DevProfiles/${devProfile.id}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('title', devProfile.title);
       expect(res.body).toHaveProperty('description', devProfile.description);
+      expect(res.body).toHaveProperty('image', devProfile.image);
       expect(res.body).toHaveProperty('location', devProfile.location);
     });
   });
@@ -116,101 +117,118 @@ describe('/api/DevProfiles', () => {
     afterEach(async () => await destroyDevProfiles());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.delete(`/api/devProfiles/${faker.random.uuid()}`);
+      const res = await request.delete(`/api/DevProfiles/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return 204 after removing an image', async () => {
-      const res = await request.delete(`/api/devProfiles/${devProfile.id}`);
+      const res = await request.delete(`/api/DevProfiles/${devProfile.id}`);
       expect(res.status).toBe(204);
     });
   });
 
   describe('POST /', () => {
     let devProfile;
-    beforeAll(async () => {
-      devProfile = await insertDevProfile();
+    let image;
+    beforeEach(async () => {
+      devProfile = await generateDevProfile(true, 2);
+      ({ image } = devProfile);
     });
-    afterAll(async () => await destroyDevProfiles());
+    afterEach(async () => {
+      await removeImg(image);
+      await destroyDevProfiles();
+    });
 
     it('should return 400 if project is invalid', async () => {
-      const res = await request
-        .post(`/api/devProfiles/`)
-        .field('name', faker.name.findName())
-        .field('bio', faker.lorem.paragraph(2))
-        // .field('email', faker.internet.email())
-        .field('socials[0][name]', faker.company.companyName())
-        .field('socials[0][url]', faker.internet.url())
-        .field('socials[1][name]', faker.company.companyName())
-        .field('socials[1][url]', faker.internet.url())
-        .attach('image', `public/${devProfile.image}`);
+      try {
+        const res = await request
+          .post(`/api/DevProfiles/`)
+          .field('name', devProfile.name)
+          .field('bio', devProfile.bio)
+          // .field('email', devProfile.email)
+          .field('socials[0][name]', devProfile.socials[0].name)
+          .field('socials[0][url]', devProfile.socials[0].url)
+          .field('socials[1][name]', devProfile.socials[1].name)
+          .field('socials[1][url]', devProfile.socials[1].url)
+          .attach('image', `public/${image}`);
 
-      expect(res.status).toBe(400);
+        expect(res.status).toBe(400);
+      } catch (err) {
+        log(err);
+      }
     });
 
     it('should return the project if it is valid', async () => {
       const res = await request
-        .post(`/api/devProfiles/`)
-        .field('name', faker.name.findName())
-        .field('bio', faker.lorem.paragraph(2))
-        .field('email', faker.internet.email())
-        .field('socials[0][name]', faker.company.companyName())
-        .field('socials[0][url]', faker.internet.url())
-        .field('socials[1][name]', faker.company.companyName())
-        .field('socials[1][url]', faker.internet.url())
-        .attach('image', `public/${devProfile.image}`);
+        .post(`/api/DevProfiles/`)
+        .field('name', devProfile.name)
+        .field('bio', devProfile.bio)
+        .field('email', devProfile.email)
+        .field('socials[0][name]', devProfile.socials[0].name)
+        .field('socials[0][url]', devProfile.socials[0].url)
+        .field('socials[1][name]', devProfile.socials[1].name)
+        .field('socials[1][url]', devProfile.socials[1].url)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(201);
     });
   });
 
   describe('PUT /:id', () => {
+    let newDevProfile;
     let devProfile;
+    let image;
     beforeEach(async () => {
       devProfile = await insertDevProfile();
+      newDevProfile = await generateDevProfile(true, 2);
+      ({ image } = newDevProfile);
     });
-    afterEach(async () => await destroyDevProfiles());
+    afterEach(async () => {
+      await removeImg(image);
+      await destroyDevProfiles();
+    });
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
-        .put(`/api/devProfiles/${faker.random.uuid()}`)
-        .field('name', faker.name.findName())
-        .field('bio', faker.lorem.paragraph(2))
-        .field('email', faker.internet.email())
-        .field('socials[0][name]', faker.company.companyName())
-        .field('socials[0][url]', faker.internet.url())
-        .field('socials[1][name]', faker.company.companyName())
-        .field('socials[1][url]', faker.internet.url())
-        .attach('image', `public/${devProfile.image}`);
+        .put(`/api/DevProfiles/${faker.random.uuid()}`)
+        .field('name', newDevProfile.name)
+        .field('bio', newDevProfile.bio)
+        .field('email', newDevProfile.email)
+        .field('socials[0][name]', newDevProfile.socials[0].name)
+        .field('socials[0][url]', newDevProfile.socials[0].url)
+        .field('socials[1][name]', newDevProfile.socials[1].name)
+        .field('socials[1][url]', newDevProfile.socials[1].url)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if project is invalid', async () => {
       const res = await request
-        .put(`/api/devProfiles/${devProfile.id}`)
-        .field('name', faker.name.findName())
-        .field('bio', faker.lorem.paragraph(2))
-        // .field('email', faker.internet.email())
-        .field('socials[0][name]', faker.company.companyName())
-        .field('socials[0][url]', faker.internet.url())
-        .field('socials[1][name]', faker.company.companyName())
-        .field('socials[1][url]', faker.internet.url())
-        .attach('image', `public/${devProfile.image}`);
+        .put(`/api/DevProfiles/${devProfile.id}`)
+        .field('name', newDevProfile.name)
+        .field('bio', newDevProfile.bio)
+        // .field('email', newDevProfile.email)
+        .field('socials[0][name]', newDevProfile.socials[0].name)
+        .field('socials[0][url]', newDevProfile.socials[0].url)
+        .field('socials[1][name]', newDevProfile.socials[1].name)
+        .field('socials[1][url]', newDevProfile.socials[1].url)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(400);
     });
 
     it('should return the project if it is valid', async () => {
       const res = await request
-        .put(`/api/devProfiles/${devProfile.id}`)
-        .field('date', `${faker.date.past(2)}`)
-        .field('title', faker.name.title())
-        .field('description', faker.lorem.paragraph())
-        .field('location', `${faker.address.latitude()}, ${faker.address.longitude()}`)
-        .field('tags[0][title]', faker.name.title())
-        .field('tags[1][title]', faker.name.title())
-        .attach('image', `public/${devProfile.image}`);
+        .put(`/api/DevProfiles/${devProfile.id}`)
+        .field('name', newDevProfile.name)
+        .field('bio', newDevProfile.bio)
+        .field('email', newDevProfile.email)
+        .field('socials[0][name]', newDevProfile.socials[0].name)
+        .field('socials[0][url]', newDevProfile.socials[0].url)
+        .field('socials[1][name]', newDevProfile.socials[1].name)
+        .field('socials[1][url]', newDevProfile.socials[1].url)
+        .attach('image', `public/${image}`);
 
       expect(res.status).toBe(200);
     });

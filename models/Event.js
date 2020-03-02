@@ -15,7 +15,7 @@ class Event extends Model {
   static validateAll(list) {
     return Joi.object({
       id: Joi.string().uuid(),
-      date: Joi.string(),
+      date: Joi.date().required(),
       title: Joi.string()
         .required()
         .min(1)

@@ -26,10 +26,10 @@ module.exports = async (req, res, next) => {
 
     // grant access to protected route
     req.user = user;
+    next();
   } catch (ex) {
     next(ex);
   }
-  next();
 };
 
 // (module.exports = function(req, res, next) {

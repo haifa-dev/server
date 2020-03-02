@@ -57,6 +57,7 @@ exports.generateEvent = async (withImage = true, numOfTags = generateNum()) => {
     title: faker.name.title(),
     description: faker.lorem.paragraph(generateNum()),
     image,
+    date: faker.date.past(2),
     location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
     tags: _.times(numOfTags, () => ({ title: faker.commerce.productAdjective() }))
   };
