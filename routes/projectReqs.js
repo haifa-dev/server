@@ -1,17 +1,25 @@
-const express = require('express');
-const { projectReqs: controller } = require('../controllers');
+const router = require('express').Router();
+const { projectReqs } = require('../controllers');
 const isUUID = require('../middleware/isUUID');
 
-const router = express.Router();
+const {
+  getProjectReqs,
+  getProjectReq,
+  deleteProjectReq,
+  validateProjectReq,
+  createProjectReq,
+  updateProjectReq
+} = projectReqs;
 
-router.get('/', controller.getProjectReqs);
+router
+  .route('/')
+  .get(getProjectReqs)
+  .post(validateProjectReq, createProjectReq);
 
-router.get('/:id', isUUID, controller.getProjectReq);
-
-router.delete('/:id', isUUID, controller.deleteProjectReq);
-
-router.post('/', controller.validateProjectReq, controller.createProjectReq);
-
-router.put('/:id', isUUID, controller.validateProjectReq, controller.updateProjectReq);
+router
+  .route('/:id')
+  .get(isUUID, getProjectReq)
+  .delete(isUUID, deleteProjectReq)
+  .put(isUUID, validateProjectReq, updateProjectReq);
 
 module.exports = router;

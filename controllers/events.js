@@ -44,7 +44,7 @@ exports.deleteEvent = async (req, res) => {
   if (!event) throw new AppError('The event with the given ID was not found.', 404);
 
   // delete the current event
-  removeImg(event.image);
+  await removeImg(event.image);
   await event.destroy();
   // send status if successes
   res.sendStatus(204);
@@ -70,7 +70,7 @@ exports.updateEvent = async (req, res) => {
   // check if the event exists
   if (!event) throw new AppError('The event with the given ID was not found.', 404);
 
-  removeImg(event.image);
+  await removeImg(event.image);
   await Tag.destroy({ where: { EventId: req.params.id } });
 
   if (req.body.tags) {

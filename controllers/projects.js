@@ -46,7 +46,7 @@ exports.deleteProject = async (req, res) => {
   // delete the current project
   await removeImg(project.image);
   await project.destroy();
-  
+
   // send status if successes
   res.sendStatus(204);
 };

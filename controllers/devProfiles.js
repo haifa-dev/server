@@ -45,7 +45,7 @@ exports.deleteDevProfile = async (req, res) => {
     throw new AppError('The developer profile with the given ID was not found.', 404);
 
   // delete the current developer profile
-  removeImg(devProfile.image);
+  await removeImg(devProfile.image);
   await devProfile.destroy();
   // send status if successes
   res.sendStatus(204);
@@ -89,7 +89,7 @@ exports.updateDevProfile = async (req, res) => {
   if (!devProfile)
     throw new AppError('The developer profile with the given ID was not found.', 404);
   // remove old image
-  removeImg(devProfile.image);
+  await removeImg(devProfile.image);
   // recreate the social tags
   await Social.destroy({ where: { devProfileId: req.params.id } });
 

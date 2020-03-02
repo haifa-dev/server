@@ -1,18 +1,19 @@
-const express = require('express');
+const router = require('express').Router();
 const imgUpload = require('../middleware/imgUpload');
-const { events: controller } = require('../controllers');
+const { events } = require('../controllers');
 const isUUID = require('../middleware/isUUID');
 
-const router = express.Router();
+const { getEvents, getEvent, deleteEvent, validateEvent, createEvent, updateEvent } = events;
 
-router.get('/', controller.getEvents);
+router
+  .route('/')
+  .get(getEvents)
+  .post(imgUpload, validateEvent, createEvent);
 
-router.get('/:id', isUUID, controller.getEvent);
-
-router.delete('/:id', isUUID, controller.deleteEvent);
-
-router.post('/', imgUpload, controller.validateEvent, controller.createEvent);
-
-router.put('/:id', isUUID, imgUpload, controller.validateEvent, controller.updateEvent);
+router
+  .route('/:id')
+  .get(isUUID, getEvent)
+  .delete(isUUID, deleteEvent)
+  .put(isUUID, imgUpload, validateEvent, updateEvent);
 
 module.exports = router;
