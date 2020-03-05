@@ -8,6 +8,8 @@ const Event = require('../../models/Event');
 const { removeImg } = require('../../utils/fileSystem');
 const { generateEvent } = require('../../utils/generateData');
 
+const baseUrl = '/api/v1';
+const url = `${baseUrl}/events`;
 let request;
 
 const { log, error } = console;
@@ -52,7 +54,7 @@ const destroyEvents = async () => {
   await Event.destroy({ where: {} });
 };
 
-describe('/api/events', () => {
+describe(`${url}`, () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
@@ -64,24 +66,24 @@ describe('/api/events', () => {
     afterAll(async () => await destroyEvents(events));
 
     it('should return all Events', async () => {
-      const res = await request.get('/api/events');
+      const res = await request.get(`${url}`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(10);
     });
 
     it('should return offset 5 Events', async () => {
-      const res = await request.get('/api/events?offset=5');
+      const res = await request.get(`${url}?offset=5`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(5);
     });
 
     it('should return limit 2 Events', async () => {
-      const res = await request.get('/api/events?limit=2');
+      const res = await request.get(`${url}?limit=2`);
       expect(res.body.length).toBe(2);
     });
 
     it('should return Events off set 5 and limited to 2', async () => {
-      const res = await request.get('/api/events?limit=2&offset=5');
+      const res = await request.get(`${url}?limit=2&offset=5`);
       expect(res.body.length).toBe(2);
     });
   });
@@ -94,12 +96,12 @@ describe('/api/events', () => {
     afterEach(async () => await destroyEvents());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/events/${faker.random.uuid()}`);
+      const res = await request.get(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return a event if valid id is passed', async () => {
-      const res = await request.get(`/api/events/${event.id}`);
+      const res = await request.get(`${url}/${event.id}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('title', event.title);
@@ -117,12 +119,12 @@ describe('/api/events', () => {
     afterEach(async () => await destroyEvents());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.delete(`/api/events/${faker.random.uuid()}`);
+      const res = await request.delete(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return 204 after removing an image', async () => {
-      const res = await request.delete(`/api/events/${event.id}`);
+      const res = await request.delete(`${url}/${event.id}`);
       expect(res.status).toBe(204);
     });
   });
@@ -142,7 +144,7 @@ describe('/api/events', () => {
     it('should return 400 if project is invalid', async () => {
       try {
         const res = await request
-          .post(`/api/events/`)
+          .post(`${url}/`)
           .field('date', `${event.date}`)
           .field('description', event.description)
           .field('location', event.location)
@@ -159,7 +161,7 @@ describe('/api/events', () => {
     it('should return the project if it is valid', async () => {
       const res = await request
 
-        .post(`/api/events/`)
+        .post(`${url}/`)
         .field('date', `${event.date}`)
         .field('title', event.title)
         .field('description', event.description)
@@ -188,7 +190,7 @@ describe('/api/events', () => {
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
-        .put(`/api/events/${faker.random.uuid()}`)
+        .put(`${url}/${faker.random.uuid()}`)
         .field('date', `${newEvent.date}`)
         .field('title', newEvent.title)
         .field('description', newEvent.description)
@@ -202,7 +204,7 @@ describe('/api/events', () => {
 
     it('should return 400 if project is invalid', async () => {
       const res = await request
-        .put(`/api/events/${event.id}`)
+        .put(`${url}/${event.id}`)
         .field('date', `${newEvent.date}`)
         // .field('title', event.title)
         .field('description', newEvent.description)
@@ -216,7 +218,7 @@ describe('/api/events', () => {
 
     it('should return the project if it is valid', async () => {
       const res = await request
-        .put(`/api/events/${event.id}`)
+        .put(`${url}/${event.id}`)
         .field('date', `${newEvent.date}`)
         .field('title', newEvent.title)
         .field('description', newEvent.description)

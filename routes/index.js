@@ -10,6 +10,8 @@ const projects = require('./projects');
 const notFound = require('./notFound');
 const users = require('./users');
 
+const baseUrl = '/api/v1';
+
 module.exports = app => {
   // middleware
   app.use(helmet());
@@ -18,12 +20,11 @@ module.exports = app => {
   app.use(cors());
   app.options('*', cors());
   // routes
-  app.use('/api/users', users);
-  app.use('/api/devProfiles', devProfiles);
-  app.use('/api/events', events);
-  app.use('/api/projectReqs', projectReqs);
-  app.use('/api/projects', projects);
-  app.get('/test', notFound);
+  app.use(`${baseUrl}/users`, users);
+  app.use(`${baseUrl}/devProfiles`, devProfiles);
+  app.use(`${baseUrl}/events`, events);
+  app.use(`${baseUrl}/projectReqs`, projectReqs);
+  app.use(`${baseUrl}/projects`, projects);
   app.all('*', notFound);
   app.use(error);
 };

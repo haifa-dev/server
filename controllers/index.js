@@ -1,9 +1,18 @@
-const devProfiles = require('./devProfiles');
-const events = require('./events');
-const projectReqs = require('./projectReqs');
-const projects = require('./projects');
+const fs = require('fs');
+const path = require('path');
 
-const controllers = { devProfiles, events, projectReqs, projects };
+const controllers = {};
+
+const files = fs.readdirSync(__dirname);
+
+const requireController = file => {
+  if (/.js$/.test(file) && file !== 'index.js') {
+    file = file.split('.')[0];
+    controllers[file] = require(path.join(__dirname, file)); // eslint-disable-line
+  }
+};
+
+files.forEach(requireController);
 
 /**
  * wrap express async routes with tryCatch blocks

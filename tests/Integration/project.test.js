@@ -8,6 +8,8 @@ const Project = require('../../models/Project');
 const { removeImg } = require('../../utils/fileSystem');
 const { generateProject } = require('../../utils/generateData');
 
+const baseUrl = '/api/v1';
+const url = `${baseUrl}/projects`;
 let request;
 
 const { log, error } = console;
@@ -47,7 +49,7 @@ const destroyProjects = async () => {
   await Project.destroy({ where: {} });
 };
 
-describe('/api/Projects', () => {
+describe('${url}', () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
@@ -59,24 +61,24 @@ describe('/api/Projects', () => {
     afterAll(async () => await destroyProjects(projects));
 
     it('should return all Projects', async () => {
-      const res = await request.get('/api/Projects');
+      const res = await request.get(`${url}`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(10);
     });
 
     it('should return offset 5 Projects', async () => {
-      const res = await request.get('/api/Projects?offset=5');
+      const res = await request.get(`${url}?offset=5`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(5);
     });
 
     it('should return limit 2 Projects', async () => {
-      const res = await request.get('/api/Projects?limit=2');
+      const res = await request.get(`${url}?limit=2`);
       expect(res.body.length).toBe(2);
     });
 
     it('should return Projects off set 5 and limited to 2', async () => {
-      const res = await request.get('/api/Projects?limit=2&offset=5');
+      const res = await request.get(`${url}?limit=2&offset=5`);
       expect(res.body.length).toBe(2);
     });
   });
@@ -89,12 +91,12 @@ describe('/api/Projects', () => {
     afterEach(async () => await destroyProjects());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/projects/${faker.random.uuid()}`);
+      const res = await request.get(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return a Project if valid id is passed', async () => {
-      const res = await request.get(`/api/projects/${project.id}`);
+      const res = await request.get(`${url}/${project.id}`);
 
       expect(res.status).toBe(200);
     });
@@ -108,12 +110,12 @@ describe('/api/Projects', () => {
     afterEach(async () => await destroyProjects());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.delete(`/api/projects/${faker.random.uuid()}`);
+      const res = await request.delete(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return 204 after removing an image', async () => {
-      const res = await request.delete(`/api/projects/${project.id}`);
+      const res = await request.delete(`${url}/${project.id}`);
       expect(res.status).toBe(204);
     });
   });
@@ -132,7 +134,7 @@ describe('/api/Projects', () => {
 
     it('should return 400 if project is invalid', async () => {
       const res = await request
-        .post(`/api/projects/`)
+        .post(`${url}/`)
         // .field('title', `${project.title}`)
         .field('description', project.description)
         .field('tags[0][title]', project.tags[0].title)
@@ -149,7 +151,7 @@ describe('/api/Projects', () => {
     it('should return the project if it is valid', async () => {
       const res = await request
 
-        .post(`/api/projects/`)
+        .post(`${url}/`)
         .field('title', `${project.title}`)
         .field('description', project.description)
         .field('tags[0][title]', project.tags[0].title)
@@ -180,7 +182,7 @@ describe('/api/Projects', () => {
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
-        .put(`/api/projects/${faker.random.uuid()}`)
+        .put(`${url}/${faker.random.uuid()}`)
         .field('title', `${newProject.title}`)
         .field('description', newProject.description)
         .field('tags[0][title]', newProject.tags[0].title)
@@ -196,7 +198,7 @@ describe('/api/Projects', () => {
 
     it('should return 400 if project is invalid', async () => {
       const res = await request
-        .put(`/api/projects/${project.id}`)
+        .put(`${url}/${project.id}`)
         // .field('title', `${newProject.title}`)
         .field('description', newProject.description)
         .field('tags[0][title]', newProject.tags[0].title)
@@ -212,7 +214,7 @@ describe('/api/Projects', () => {
 
     it('should return the project if it is valid', async () => {
       const res = await request
-        .put(`/api/projects/${project.id}`)
+        .put(`${url}/${project.id}`)
         .field('title', `${newProject.title}`)
         .field('description', newProject.description)
         .field('tags[0][title]', newProject.tags[0].title)

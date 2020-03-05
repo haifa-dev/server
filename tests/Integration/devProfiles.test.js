@@ -8,6 +8,8 @@ const DevProfile = require('../../models/DevProfile');
 const { removeImg } = require('../../utils/fileSystem');
 const { generateDevProfile } = require('../../utils/generateData');
 
+const baseUrl = '/api/v1';
+const url = `${baseUrl}/devProfiles`;
 let request;
 
 const { log, error } = console;
@@ -52,7 +54,7 @@ const destroyDevProfiles = async () => {
   await DevProfile.destroy({ where: {} });
 };
 
-describe('/api/DevProfiles', () => {
+describe(`${url}`, () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
@@ -64,24 +66,24 @@ describe('/api/DevProfiles', () => {
     afterAll(async () => await destroyDevProfiles(devProfiles));
 
     it('should return all DevProfiles', async () => {
-      const res = await request.get('/api/DevProfiles');
+      const res = await request.get(`${url}`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(10);
     });
 
     it('should return offset 5 DevProfiles', async () => {
-      const res = await request.get('/api/DevProfiles?offset=5');
+      const res = await request.get(`${url}?offset=5`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(5);
     });
 
     it('should return limit 2 DevProfiles', async () => {
-      const res = await request.get('/api/DevProfiles?limit=2');
+      const res = await request.get(`${url}?limit=2`);
       expect(res.body.length).toBe(2);
     });
 
     it('should return DevProfiles off set 5 and limited to 2', async () => {
-      const res = await request.get('/api/DevProfiles?limit=2&offset=5');
+      const res = await request.get(`${url}?limit=2&offset=5`);
       expect(res.body.length).toBe(2);
     });
   });
@@ -94,12 +96,12 @@ describe('/api/DevProfiles', () => {
     afterEach(async () => await destroyDevProfiles());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/DevProfiles/${faker.random.uuid()}`);
+      const res = await request.get(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return a DevProfile if valid id is passed', async () => {
-      const res = await request.get(`/api/DevProfiles/${devProfile.id}`);
+      const res = await request.get(`${url}/${devProfile.id}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('title', devProfile.title);
@@ -117,12 +119,12 @@ describe('/api/DevProfiles', () => {
     afterEach(async () => await destroyDevProfiles());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.delete(`/api/DevProfiles/${faker.random.uuid()}`);
+      const res = await request.delete(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return 204 after removing an image', async () => {
-      const res = await request.delete(`/api/DevProfiles/${devProfile.id}`);
+      const res = await request.delete(`${url}/${devProfile.id}`);
       expect(res.status).toBe(204);
     });
   });
@@ -142,7 +144,7 @@ describe('/api/DevProfiles', () => {
     it('should return 400 if project is invalid', async () => {
       try {
         const res = await request
-          .post(`/api/DevProfiles/`)
+          .post(`${url}/`)
           .field('name', devProfile.name)
           .field('bio', devProfile.bio)
           // .field('email', devProfile.email)
@@ -160,7 +162,7 @@ describe('/api/DevProfiles', () => {
 
     it('should return the project if it is valid', async () => {
       const res = await request
-        .post(`/api/DevProfiles/`)
+        .post(`${url}/`)
         .field('name', devProfile.name)
         .field('bio', devProfile.bio)
         .field('email', devProfile.email)
@@ -190,7 +192,7 @@ describe('/api/DevProfiles', () => {
 
     it('should return 404 if invalid id is passed', async () => {
       const res = await request
-        .put(`/api/DevProfiles/${faker.random.uuid()}`)
+        .put(`${url}/${faker.random.uuid()}`)
         .field('name', newDevProfile.name)
         .field('bio', newDevProfile.bio)
         .field('email', newDevProfile.email)
@@ -205,7 +207,7 @@ describe('/api/DevProfiles', () => {
 
     it('should return 400 if project is invalid', async () => {
       const res = await request
-        .put(`/api/DevProfiles/${devProfile.id}`)
+        .put(`${url}/${devProfile.id}`)
         .field('name', newDevProfile.name)
         .field('bio', newDevProfile.bio)
         // .field('email', newDevProfile.email)
@@ -220,7 +222,7 @@ describe('/api/DevProfiles', () => {
 
     it('should return the project if it is valid', async () => {
       const res = await request
-        .put(`/api/DevProfiles/${devProfile.id}`)
+        .put(`${url}/${devProfile.id}`)
         .field('name', newDevProfile.name)
         .field('bio', newDevProfile.bio)
         .field('email', newDevProfile.email)

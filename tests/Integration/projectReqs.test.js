@@ -8,6 +8,8 @@ const ProjectReq = require('../../models/ProjectReq');
 const { removeImg } = require('../../utils/fileSystem');
 const { generateProjectReq } = require('../../utils/generateData');
 
+const baseUrl = '/api/v1';
+const url = `${baseUrl}/projectReqs`;
 let request;
 
 const { log, error } = console;
@@ -46,7 +48,7 @@ const insertProjectReqs = async () => {
 };
 
 const destroyProjectReqs = async () => await ProjectReq.destroy({ where: {} });
-describe('/api/projectReqs', () => {
+describe(`${url}`, () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
@@ -55,24 +57,24 @@ describe('/api/projectReqs', () => {
     afterAll(async () => await destroyProjectReqs());
 
     it('should return all ProjectReqs', async () => {
-      const res = await request.get('/api/projectReqs');
+      const res = await request.get(`${url}`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(10);
     });
 
     it('should return offset 5 ProjectReqs', async () => {
-      const res = await request.get('/api/projectReqs?offset=5');
+      const res = await request.get(`${url}?offset=5`);
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(5);
     });
 
     it('should return limit 2 ProjectReqs', async () => {
-      const res = await request.get('/api/projectReqs?limit=2');
+      const res = await request.get(`${url}?limit=2`);
       expect(res.body.length).toBe(2);
     });
 
     it('should return ProjectReqs off set 5 and limited to 2', async () => {
-      const res = await request.get('/api/projectReqs?limit=2&offset=5');
+      const res = await request.get(`${url}?limit=2&offset=5`);
       expect(res.body.length).toBe(2);
     });
   });
@@ -85,12 +87,12 @@ describe('/api/projectReqs', () => {
     afterEach(async () => await destroyProjectReqs());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.get(`/api/projectReqs/${faker.random.uuid()}`);
+      const res = await request.get(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return a ProjectReq if valid id is passed', async () => {
-      const res = await request.get(`/api/projectReqs/${projectReq.id}`);
+      const res = await request.get(`${url}/${projectReq.id}`);
 
       expect(res.status).toBe(200);
     });
@@ -104,12 +106,12 @@ describe('/api/projectReqs', () => {
     afterEach(async () => await destroyProjectReqs());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.delete(`/api/projectReqs/${faker.random.uuid()}`);
+      const res = await request.delete(`${url}/${faker.random.uuid()}`);
       expect(res.status).toBe(404);
     });
 
     it('should return 204 after removing an image', async () => {
-      const res = await request.delete(`/api/projectReqs/${projectReq.id}`);
+      const res = await request.delete(`${url}/${projectReq.id}`);
       expect(res.status).toBe(204);
     });
   });
@@ -126,13 +128,13 @@ describe('/api/projectReqs', () => {
     it('should return 400 if project is invalid', async () => {
       delete projectReq.email;
 
-      const res = await request.post(`/api/projectReqs/`).send(projectReq);
+      const res = await request.post(`${url}/`).send(projectReq);
 
       expect(res.status).toBe(400);
     });
 
     it('should return the project if it is valid', async () => {
-      const res = await request.post(`/api/projectReqs/`).send(projectReq);
+      const res = await request.post(`${url}/`).send(projectReq);
 
       expect(res.status).toBe(201);
     });
@@ -148,20 +150,20 @@ describe('/api/projectReqs', () => {
     afterEach(async () => await destroyProjectReqs());
 
     it('should return 404 if invalid id is passed', async () => {
-      const res = await request.put(`/api/projectReqs/${faker.random.uuid()}`).send(newProjectReq);
+      const res = await request.put(`${url}/${faker.random.uuid()}`).send(newProjectReq);
 
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if project is invalid', async () => {
       delete newProjectReq.email;
-      const res = await request.put(`/api/projectReqs/${projectReq.id}`).send(newProjectReq);
+      const res = await request.put(`${url}/${projectReq.id}`).send(newProjectReq);
 
       expect(res.status).toBe(400);
     });
 
     it('should return the project if it is valid', async () => {
-      const res = await request.put(`/api/projectReqs/${projectReq.id}`).send(newProjectReq);
+      const res = await request.put(`${url}/${projectReq.id}`).send(newProjectReq);
 
       expect(res.status).toBe(200);
     });
