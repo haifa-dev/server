@@ -1,41 +1,43 @@
 const Event = require('../models/Event');
 const AppError = require('../utils/AppError');
-const { removeImg } = require('../utils/fileSystem');
 const Tag = require('../models/Tag');
 
 /**
- * get all the events can pass pagination
- * options offset and limit via query.
+ * get all the events
  */
 exports.getEvents = async (req, res) => {
-  const { offset, limit } = req.query;
-  const eventParams = { subQuery: true, include: 'tags' };
+  const events = await Event.findAll({
+    subQuery: true,
+    ...req.queryParams,
+    include: { all: true }
+  });
 
-  // checking for pagination query options
-  if (offset) eventParams.offset = offset;
-  if (limit) eventParams.limit = limit;
-
-  const events = await Event.findAll(eventParams);
-
-  res.send(events);
+  res.send({
+    status: 'Success',
+    results: events.length,
+    data: events
+  });
 };
 
 /**
- * get event by passing the primary key via the param id.
+ * get event by id
  */
 exports.getEvent = async (req, res) => {
   const event = await Event.findByPk(req.params.id, {
-    include: 'tags'
+    include: { all: true }
   });
   // validate if event exists
   if (!event) {
     throw new AppError('The event with the given ID was not found.', 404);
   }
-  res.send(event);
+  res.status(200).json({
+    status: 'Success',
+    data: event
+  });
 };
 
 /**
- * delete event by passing the primary key via the param id
+ * delete event by id
  */
 exports.deleteEvent = async (req, res) => {
   // find a single user with the id
@@ -43,18 +45,12 @@ exports.deleteEvent = async (req, res) => {
   // validate dev profiles existence in the database
   if (!event) throw new AppError('The event with the given ID was not found.', 404);
 
-  // delete the current event
-  await removeImg(event.image);
   await event.destroy();
   // send status if successes
-  res.sendStatus(204);
-};
-
-exports.validateEvent = (req, res, next) => {
-  //  user input validation
-  const { error } = Event.validateAll(req.body);
-  if (error) throw new AppError(error.details[0].message, 400);
-  next();
+  res.status(204).send({
+    status: 'Success',
+    data: null
+  });
 };
 
 /**
@@ -62,7 +58,10 @@ exports.validateEvent = (req, res, next) => {
  */
 exports.createEvent = async (req, res) => {
   const event = await Event.create(req.body, { include: 'tags' });
-  res.status(201).send(event);
+  res.status(201).send({
+    status: 'Success',
+    data: event
+  });
 };
 
 exports.updateEvent = async (req, res) => {
@@ -70,7 +69,6 @@ exports.updateEvent = async (req, res) => {
   // check if the event exists
   if (!event) throw new AppError('The event with the given ID was not found.', 404);
 
-  await removeImg(event.image);
   await Tag.destroy({ where: { EventId: req.params.id } });
 
   if (req.body.tags) {
@@ -80,9 +78,11 @@ exports.updateEvent = async (req, res) => {
     await Tag.bulkCreate(req.body.tags);
   }
 
-  // remove the old image
   await event.update(req.body);
   await event.reload({ include: 'tags' });
 
-  res.send(event);
+  res.send({
+    status: 'Success',
+    data: event
+  });
 };

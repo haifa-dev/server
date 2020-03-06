@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
-const error = require('../middleware/error');
+const errorHandler = require('../middleware/errorHandler');
 const devProfiles = require('./devProfiles');
 const events = require('./events');
 const projectReqs = require('./projectReqs');
@@ -26,5 +26,5 @@ module.exports = app => {
   app.use(`${baseUrl}/projectReqs`, projectReqs);
   app.use(`${baseUrl}/projects`, projects);
   app.all('*', notFound);
-  app.use(error);
+  app.use(errorHandler);
 };

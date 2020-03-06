@@ -49,7 +49,7 @@ const destroyProjects = async () => {
   await Project.destroy({ where: {} });
 };
 
-describe('${url}', () => {
+describe(`${url}`, () => {
   beforeAll(establishConnection);
   afterAll(terminateConnection);
 
@@ -63,23 +63,17 @@ describe('${url}', () => {
     it('should return all Projects', async () => {
       const res = await request.get(`${url}`);
       expect(res.status).toBe(200);
-      expect(res.body.length).toBe(10);
-    });
-
-    it('should return offset 5 Projects', async () => {
-      const res = await request.get(`${url}?offset=5`);
-      expect(res.status).toBe(200);
-      expect(res.body.length).toBe(5);
+      expect(res.body.results).toBe(10);
     });
 
     it('should return limit 2 Projects', async () => {
       const res = await request.get(`${url}?limit=2`);
-      expect(res.body.length).toBe(2);
+      expect(res.body.results).toBe(2);
     });
 
     it('should return Projects off set 5 and limited to 2', async () => {
-      const res = await request.get(`${url}?limit=2&offset=5`);
-      expect(res.body.length).toBe(2);
+      const res = await request.get(`${url}?limit=2&page=5`);
+      expect(res.body.results).toBe(2);
     });
   });
 

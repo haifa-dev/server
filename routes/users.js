@@ -11,8 +11,7 @@ const router = express.Router();
 
 router.post('/login', async (req, res, next) => {
   try {
-    // validate request body object
-    const { error } = User.validateAll(req.body);
+    const { error } = User.intensifiedValidation(req.body);
     if (error) throw new AppError(error.details[0].message, 400);
 
     const user = await User.findOne({ where: { email: req.body.email } });
@@ -30,7 +29,7 @@ router.post('/login', async (req, res, next) => {
 router.post('/register', async (req, res, next) => {
   try {
     // validate request body object
-    const { error } = User.validateAll(req.body);
+    const { error } = User.intensifiedValidation(req.body);
     if (error) throw new AppError(error.details[0].message, 400);
     // validate email unique
     let user = await User.findOne({ where: { email: req.body.email } });
@@ -74,7 +73,7 @@ router.post('/forgotPassword', async (req, res, next) => {
     });
 
     res.status(200).json({
-      status: 'success',
+      status: 'Success',
       message: 'Token sent to email!'
     });
   } catch (err) {
@@ -110,12 +109,11 @@ router.patch('/changePassword', auth, async (req, res, next) => {
     const user = await User.findByPk(req.user.id, { attributes: ['id', 'password'] });
 
     // check if posted password is current
-    // if (!(await user.comparePassword(req.body.password))) throw new AppError('Invalid password', 401);
     if (!(await user.comparePassword(req.body.currentPassword)))
       return new AppError('Invalid password.', 401);
-    // if so update password
+
     await user.update({ password: req.body.password });
-    // await user.update({ password: req.body.password });
+
     const token = user.generateAuthToken();
     res.header('Authorization', token).send(_.pick(await user.reload(), ['id', 'name', 'email']));
   } catch (error) {
@@ -136,14 +134,11 @@ router.patch('/updateUser', auth, async (req, res) => {
 });
 
 router.delete('/', async (req, res) => {
-  // find a single user with the id
   const user = await User.findByPk(req.user.id);
-  // validate dev profiles existence in the database
+
   if (!user) throw new AppError('The user with the given ID was not found.', 404);
 
-  // delete the current user
   await user.destroy();
-  // send status if successes
   res.sendStatus(204);
 });
 

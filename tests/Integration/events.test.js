@@ -22,7 +22,7 @@ const establishConnection = async () => {
     log('Connection to database established successfully');
   } catch (ex) {
     error(ex);
-    process.exit(0);
+    process.exit(1);
   }
 };
 
@@ -68,23 +68,17 @@ describe(`${url}`, () => {
     it('should return all Events', async () => {
       const res = await request.get(`${url}`);
       expect(res.status).toBe(200);
-      expect(res.body.length).toBe(10);
-    });
-
-    it('should return offset 5 Events', async () => {
-      const res = await request.get(`${url}?offset=5`);
-      expect(res.status).toBe(200);
-      expect(res.body.length).toBe(5);
+      expect(res.body.results).toBe(10);
     });
 
     it('should return limit 2 Events', async () => {
       const res = await request.get(`${url}?limit=2`);
-      expect(res.body.length).toBe(2);
+      expect(res.body.results).toBe(2);
     });
 
     it('should return Events off set 5 and limited to 2', async () => {
-      const res = await request.get(`${url}?limit=2&offset=5`);
-      expect(res.body.length).toBe(2);
+      const res = await request.get(`${url}?limit=2&page=5`);
+      expect(res.body.results).toBe(2);
     });
   });
 
@@ -104,10 +98,10 @@ describe(`${url}`, () => {
       const res = await request.get(`${url}/${event.id}`);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('title', event.title);
-      expect(res.body).toHaveProperty('description', event.description);
-      expect(res.body).toHaveProperty('image', event.image);
-      expect(res.body).toHaveProperty('location', event.location);
+      expect(res.body.data).toHaveProperty('title', event.title);
+      expect(res.body.data).toHaveProperty('description', event.description);
+      expect(res.body.data).toHaveProperty('image', event.image);
+      expect(res.body.data).toHaveProperty('location', event.location);
     });
   });
 

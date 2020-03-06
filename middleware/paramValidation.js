@@ -2,9 +2,9 @@ const Joi = require('@hapi/joi');
 const AppError = require('../utils/AppError');
 
 /**
- * req.params.id validation for UUID time
+ * get request's param for validation and Input sanitization.
  */
-module.exports = function isUUID(req, res, next) {
+module.exports = (req, res, next) => {
   const { error } = Joi.object({
     id: Joi.string()
       .uuid()

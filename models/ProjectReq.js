@@ -3,15 +3,7 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
 class ProjectReq extends Model {
-  static isUUID(id) {
-    return Joi.object({
-      id: Joi.string()
-        .uuid()
-        .required()
-    }).validate({ id });
-  }
-
-  static validateAll(list) {
+  static intensifiedValidation(projectReq) {
     return Joi.object({
       id: Joi.string().uuid(),
       date: Joi.date(),
@@ -23,14 +15,13 @@ class ProjectReq extends Model {
       content: Joi.string().required(),
       submittedBy: Joi.string()
         .required()
-        .required()
         .min(1)
         .max(255),
       phone: Joi.string()
         .required()
         .min(3)
         .max(255)
-    }).validate(list);
+    }).validate(projectReq);
   }
 }
 ProjectReq.init(
@@ -68,7 +59,9 @@ ProjectReq.init(
       }
     }
   },
-  { sequelize }
+  {
+    sequelize
+  }
 );
 
 module.exports = ProjectReq;

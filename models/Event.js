@@ -2,17 +2,10 @@ const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const Tag = require('./Tag');
+const { removeImg } = require('../utils/fileSystem');
 
 class Event extends Model {
-  static isUUID(id) {
-    return Joi.object({
-      id: Joi.string()
-        .uuid()
-        .required()
-    }).validate({ id });
-  }
-
-  static validateAll(list) {
+  static intensifiedValidation(event) {
     return Joi.object({
       id: Joi.string().uuid(),
       date: Joi.date().required(),
@@ -23,15 +16,8 @@ class Event extends Model {
       description: Joi.string().required(),
       location: Joi.string().required(),
       image: Joi.string(),
-      tags: Joi.array().items(
-        Joi.object({
-          title: Joi.string()
-            .min(1)
-            .max(255)
-            .required()
-        })
-      )
-    }).validate(list);
+      tags: Tag.intensifiedValidation()
+    }).validate(event);
   }
 }
 
@@ -52,7 +38,6 @@ Event.init(
     title: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'unknown',
       validate: { len: [1, 255], notEmpty: true, notNull: true }
     },
     description: {
@@ -64,7 +49,17 @@ Event.init(
       type: DataTypes.STRING
     }
   },
-  { sequelize }
+  {
+    sequelize,
+    hooks: {
+      beforeUpdate: async event => {
+        if (event.getDataValue('image')) await removeImg(event.previous('image'));
+      },
+      beforeDestroy: async event => {
+        await removeImg(event.previous('image'));
+      }
+    }
+  }
 );
 
 Event.hasMany(Tag);

@@ -1,24 +1,24 @@
 const ProjectReq = require('../models/ProjectReq');
 const AppError = require('../utils/AppError');
 /**
- * get all the project requests can pass
- * pagination options offset and limit via query.
+ * get all the project requests
  */
 exports.getProjectReqs = async (req, res) => {
-  const { offset, limit } = req.query;
-  const projectReqsParams = { raw: true };
+  const projectReqs = await ProjectReq.findAll({
+    subQuery: true,
+    ...req.queryParams,
+    include: { all: true }
+  });
 
-  // checking for pagination query options
-  if (offset) projectReqsParams.offset = offset;
-  if (limit) projectReqsParams.limit = limit;
-
-  const projectReq = await ProjectReq.findAll(projectReqsParams);
-
-  res.send(projectReq);
+  res.send({
+    status: 'Success',
+    results: projectReqs.length,
+    data: projectReqs
+  });
 };
 
 /**
- * get project request by passing the primary key via the param id.
+ * get project request by id
  */
 exports.getProjectReq = async (req, res) => {
   const projectReq = await ProjectReq.findByPk(req.params.id, { raw: true });
@@ -26,11 +26,14 @@ exports.getProjectReq = async (req, res) => {
   if (!projectReq)
     throw new AppError('The developer profile with the given ID was not found.', 404);
 
-  res.send(projectReq);
+  res.status(200).send({
+    status: 'Success',
+    data: projectReq
+  });
 };
 
 /**
- * delete project request by passing the primary key via the param id.
+ * delete project request by id
  */
 exports.deleteProjectReq = async (req, res) => {
   // find a single user with the id
@@ -42,17 +45,10 @@ exports.deleteProjectReq = async (req, res) => {
   // delete the current developer profile
   await projectReq.destroy();
   // send status if successes
-  res.sendStatus(204);
-};
-
-/**
- * middleware validation with ProjectReq schema for req.body
- */
-exports.validateProjectReq = (req, res, next) => {
-  //  user input validation
-  const { error } = ProjectReq.validateAll(req.body);
-  if (error) throw new AppError(error.details[0].message, 400);
-  next();
+  res.status(204).send({
+    status: 'Success',
+    data: null
+  });
 };
 
 /**
@@ -60,7 +56,11 @@ exports.validateProjectReq = (req, res, next) => {
  */
 exports.createProjectReq = async (req, res) => {
   const projectReq = await ProjectReq.create(req.body);
-  res.status(201).send(projectReq);
+
+  res.status(201).send({
+    status: 'Success',
+    data: projectReq
+  });
 };
 
 exports.updateProjectReq = async (req, res) => {
@@ -72,5 +72,8 @@ exports.updateProjectReq = async (req, res) => {
   // remove the old image
   await projectReq.update(req.body);
 
-  res.send(projectReq);
+  res.send({
+    status: 'Success',
+    data: projectReq
+  });
 };

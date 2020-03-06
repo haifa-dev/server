@@ -50,7 +50,7 @@ const { log, error } = console;
     await Project.bulkCreate(projects, { include: { all: true } });
     await ProjectReq.bulkCreate(projectReqs, { include: { all: true } });
     log(chalk.green(`Finished database initialization.`));
-    process.exit(1);
+    process.exit(0);
   } catch (err) {
     error(err);
   }

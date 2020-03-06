@@ -1,41 +1,44 @@
 const DevProfile = require('../models/DevProfile');
 const AppError = require('../utils/AppError');
-const { removeImg } = require('../utils/fileSystem');
 const Social = require('../models/Link');
 
 /**
- * get all the developer profiles can pass
- * pagination options offset and limit via query.
+ * get all developer profiles
  */
 exports.getDevProfiles = async (req, res) => {
-  const { offset, limit } = req.query;
-  const projectParams = { subQuery: true, include: 'socials' };
+  const devProfiles = await DevProfile.findAll({
+    subQuery: true,
+    ...req.queryParams,
+    include: { all: true }
+  });
 
-  // checking for pagination query options
-  if (offset) projectParams.offset = offset;
-  if (limit) projectParams.limit = limit;
-
-  const devProfiles = await DevProfile.findAll(projectParams);
-
-  res.send(devProfiles);
+  res.send({
+    status: 'Success',
+    results: devProfiles.length,
+    data: devProfiles
+  });
 };
 
 /**
- * get developer profile by passing the primary key via the param id.
+ * get developer profile by id
  */
 exports.getDevProfile = async (req, res) => {
   const devProfile = await DevProfile.findByPk(req.params.id, {
-    include: 'socials'
+    include: { all: true }
   });
   // validate if developer profile exists
   if (!devProfile) {
     throw new AppError('The developer profile with the given ID was not found.', 404);
   }
-  res.send(devProfile);
+
+  res.status(200).send({
+    status: 'Success',
+    data: devProfile
+  });
 };
 
 /**
- * delete developer profile by passing the primary key via the param id.
+ * delete developer profile by id
  */
 exports.deleteDevProfile = async (req, res) => {
   // find a single user with the id
@@ -44,22 +47,12 @@ exports.deleteDevProfile = async (req, res) => {
   if (!devProfile)
     throw new AppError('The developer profile with the given ID was not found.', 404);
 
-  // delete the current developer profile
-  await removeImg(devProfile.image);
   await devProfile.destroy();
   // send status if successes
-  res.sendStatus(204);
-};
-
-/**
- * middleware validation with devProfile schema for req.body
- */
-exports.validateDevProfile = (req, res, next) => {
-  //  user input validation
-  const { error } = DevProfile.validateAll(req.body);
-  if (error) throw new AppError(error.details[0].message, 400);
-
-  next();
+  res.status(204).send({
+    status: 'Success',
+    data: null
+  });
 };
 
 /**
@@ -77,7 +70,10 @@ exports.createDevProfile = async (req, res) => {
     include: { all: true }
   });
 
-  res.status(201).send(devProfile);
+  res.status(201).send({
+    status: 'Success',
+    data: devProfile
+  });
 };
 
 /**
@@ -88,8 +84,6 @@ exports.updateDevProfile = async (req, res) => {
   // check if the profile exists
   if (!devProfile)
     throw new AppError('The developer profile with the given ID was not found.', 404);
-  // remove old image
-  await removeImg(devProfile.image);
   // recreate the social tags
   await Social.destroy({ where: { devProfileId: req.params.id } });
 
@@ -104,5 +98,8 @@ exports.updateDevProfile = async (req, res) => {
   // refresh and get the updated version of the instance
   await devProfile.reload({ include: { all: true } });
 
-  res.send(devProfile);
+  res.send({
+    status: 'Success',
+    data: devProfile
+  });
 };

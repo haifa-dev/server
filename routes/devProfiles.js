@@ -1,26 +1,33 @@
 const router = require('express').Router();
 const imgUpload = require('../middleware/imgUpload');
 const { devProfiles } = require('../controllers');
-const isUUID = require('../middleware/isUUID');
+const DevProfile = require('../models/DevProfile');
+const paramValidation = require('../middleware/paramValidation');
+const queryHandler = require('../middleware/queryHandler');
+const bodyValidation = require('../middleware/bodyValidation');
 
 const {
   getDevProfiles,
-  validateDevProfile,
   createDevProfile,
   getDevProfile,
   deleteDevProfile,
   updateDevProfile
 } = devProfiles;
 
+router.get('/test', async (req, res) => {
+  const { body, query, params } = req;
+  res.send({ body, query, params });
+});
+
 router
   .route('/')
-  .get(getDevProfiles)
-  .post(imgUpload, validateDevProfile, createDevProfile);
+  .get(queryHandler(DevProfile), getDevProfiles)
+  .post(imgUpload, bodyValidation(DevProfile), createDevProfile);
 
 router
   .route('/:id')
-  .get(isUUID, getDevProfile)
-  .delete(isUUID, deleteDevProfile)
-  .put(isUUID, imgUpload, validateDevProfile, updateDevProfile);
+  .get(paramValidation, getDevProfile)
+  .delete(paramValidation, deleteDevProfile)
+  .put(paramValidation, imgUpload, bodyValidation(DevProfile), updateDevProfile);
 
 module.exports = router;

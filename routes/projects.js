@@ -1,26 +1,22 @@
 const router = require('express').Router();
 const { projects } = require('../controllers');
-const isUUID = require('../middleware/isUUID');
+const paramValidation = require('../middleware/paramValidation');
 const imgUpload = require('../middleware/imgUpload');
+const queryHandler = require('../middleware/queryHandler');
+const bodyValidation = require('../middleware/bodyValidation');
+const Project = require('../models/Project');
 
-const {
-  getProjects,
-  validateProject,
-  createProject,
-  getProject,
-  deleteProject,
-  updateProject
-} = projects;
+const { getProjects, createProject, getProject, deleteProject, updateProject } = projects;
 
 router
   .route('/')
-  .get(getProjects)
-  .post(imgUpload, validateProject, createProject);
+  .get(queryHandler(Project), getProjects)
+  .post(imgUpload, bodyValidation(Project), createProject);
 
 router
   .route('/:id')
-  .get(isUUID, getProject)
-  .delete(isUUID, deleteProject)
-  .put(isUUID, imgUpload, validateProject, updateProject);
+  .get(paramValidation, getProject)
+  .delete(paramValidation, deleteProject)
+  .put(paramValidation, imgUpload, bodyValidation(Project), updateProject);
 
 module.exports = router;

@@ -14,7 +14,7 @@ const sendErrorProd = (err, res) => {
   else {
     // Programing or other unknown errors: don't leek error details
     error(err);
-    res.status(500).send({ status: 'error', message: 'Internal server error.' });
+    res.status(500).send({ status: 'ERROR', message: 'Internal server error.' });
   }
 };
 /**
@@ -39,7 +39,7 @@ const sendErrorDev = (err, res) => {
  */
 module.exports = async (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
+  err.status = err.status || 'ERROR';
 
   // clean file if the request failed
   if (req.body && req.body.image) {
