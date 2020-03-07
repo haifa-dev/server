@@ -1,4 +1,4 @@
-const AppError = require('../utils/AppError');
+const ServerError = require('../utils/ServerError');
 
 module.exports = (req, res, next) =>
-  next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
+  next(new ServerError(`Can't find ${req.originalUrl} on this server.`, 404));

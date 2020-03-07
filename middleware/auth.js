@@ -1,7 +1,7 @@
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const AppError = require('../utils/AppError');
+const ServerError = require('../utils/ServerError');
 
 module.exports = async (req, res, next) => {
   // if (process.env.DISABLE_AUTH) return next();
@@ -12,17 +12,17 @@ module.exports = async (req, res, next) => {
     // check header for verification token
     if (authHeader && authHeader.startsWith('Bearer')) token = authHeader.split(' ')[1];
 
-    if (!token) throw new AppError('Invalid Credentials', 401);
+    if (!token) throw new ServerError('Invalid Credentials', 401);
     // validate authentication token
     const decode = await promisify(jwt.verify)(token, process.env.JWT_KEY);
 
     // check if user still exists
     const user = await User.findByPk(decode.sub);
 
-    if (!user) throw new AppError('Invalid Credentials', 401);
+    if (!user) throw new ServerError('Invalid Credentials', 401);
 
     // check if token was generated for the user last version
-    if (user.authUserChanged(decode.iat)) throw new AppError('Invalid Credentials', 401);
+    if (user.authUserChanged(decode.iat)) throw new ServerError('Invalid Credentials', 401);
 
     // grant access to protected route
     req.user = user;

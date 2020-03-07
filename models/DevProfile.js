@@ -1,7 +1,7 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
 const sequelize = require('../config/sequelize');
-const Link = require('./Link');
+const Social = require('./Social');
 const { removeImg } = require('../utils/fileSystem');
 
 class DevProfile extends Model {
@@ -19,7 +19,7 @@ class DevProfile extends Model {
         .email()
         .min(3)
         .max(255),
-      socials: Link.intensifiedValidation()
+      socials: Social.intensifiedValidation()
     }).validate(devProfile);
   }
 }
@@ -67,10 +67,11 @@ DevProfile.init(
 
 const associationParams = {
   as: 'socials',
-  foreignKey: { name: 'devProfileId' }
+  foreignKey: { name: 'devProfileId' },
+  onDelete: 'CASCADE'
 };
 
-DevProfile.hasMany(Link, associationParams);
-Link.belongsTo(DevProfile, associationParams);
+DevProfile.hasMany(Social, associationParams);
+Social.belongsTo(DevProfile, associationParams);
 
 module.exports = DevProfile;

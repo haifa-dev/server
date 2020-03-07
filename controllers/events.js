@@ -1,5 +1,5 @@
 const Event = require('../models/Event');
-const AppError = require('../utils/AppError');
+const ServerError = require('../utils/ServerError');
 const Tag = require('../models/Tag');
 
 /**
@@ -28,7 +28,7 @@ exports.getEvent = async (req, res) => {
   });
   // validate if event exists
   if (!event) {
-    throw new AppError('The event with the given ID was not found.', 404);
+    throw new ServerError('The event with the given ID was not found.', 404);
   }
   res.status(200).json({
     status: 'Success',
@@ -43,7 +43,7 @@ exports.deleteEvent = async (req, res) => {
   // find a single user with the id
   const event = await Event.findByPk(req.params.id);
   // validate dev profiles existence in the database
-  if (!event) throw new AppError('The event with the given ID was not found.', 404);
+  if (!event) throw new ServerError('The event with the given ID was not found.', 404);
 
   await event.destroy();
   // send status if successes
@@ -67,7 +67,7 @@ exports.createEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   const event = await Event.findByPk(req.params.id, { include: 'tags' });
   // check if the event exists
-  if (!event) throw new AppError('The event with the given ID was not found.', 404);
+  if (!event) throw new ServerError('The event with the given ID was not found.', 404);
 
   await Tag.destroy({ where: { EventId: req.params.id } });
 

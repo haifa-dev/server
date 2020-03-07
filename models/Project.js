@@ -57,7 +57,8 @@ Project.init(
 
 const associationParams = {
   as: 'links',
-  foreignKey: { name: 'projectId' }
+  foreignKey: { name: 'projectId' },
+  onDelete: 'CASCADE'
 };
 
 Project.hasMany(Tag);

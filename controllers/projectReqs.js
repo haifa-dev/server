@@ -1,5 +1,6 @@
 const ProjectReq = require('../models/ProjectReq');
-const AppError = require('../utils/AppError');
+const ServerError = require('../utils/ServerError');
+
 /**
  * get all the project requests
  */
@@ -24,7 +25,7 @@ exports.getProjectReq = async (req, res) => {
   const projectReq = await ProjectReq.findByPk(req.params.id, { raw: true });
   // validate if developer profile exists
   if (!projectReq)
-    throw new AppError('The developer profile with the given ID was not found.', 404);
+    throw new ServerError('The developer profile with the given ID was not found.', 404);
 
   res.status(200).send({
     status: 'Success',
@@ -40,7 +41,7 @@ exports.deleteProjectReq = async (req, res) => {
   const projectReq = await ProjectReq.findByPk(req.params.id);
   // validate dev profiles existence in the database
   if (!projectReq)
-    throw new AppError('The developer profile with the given ID was not found.', 404);
+    throw new ServerError('The developer profile with the given ID was not found.', 404);
 
   // delete the current developer profile
   await projectReq.destroy();
@@ -52,7 +53,7 @@ exports.deleteProjectReq = async (req, res) => {
 };
 
 /**
- * create new project req with social tags via request body
+ * create new project request
  */
 exports.createProjectReq = async (req, res) => {
   const projectReq = await ProjectReq.create(req.body);
@@ -63,11 +64,14 @@ exports.createProjectReq = async (req, res) => {
   });
 };
 
+/**
+ * update existing project request by id
+ */
 exports.updateProjectReq = async (req, res) => {
   const projectReq = await ProjectReq.findByPk(req.params.id);
   // check if the request exists
   if (!projectReq) {
-    throw new AppError('The project request with the given ID was not found.', 404);
+    throw new ServerError('The project request with the given ID was not found.', 404);
   }
   // remove the old image
   await projectReq.update(req.body);

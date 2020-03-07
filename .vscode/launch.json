@@ -8,10 +8,11 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}/db/seeds.js"
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/index.js",
+      "restart": true,
+      "runtimeExecutable": "nodemon",
+      "console": "integratedTerminal"
     }
   ]
 }

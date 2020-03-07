@@ -1,5 +1,5 @@
 const Joi = require('@hapi/joi');
-const AppError = require('../utils/AppError');
+const ServerError = require('../utils/ServerError');
 
 /**
  * get Model and return middleware that handle request's query parameters for pagination and sorting data.
@@ -28,7 +28,7 @@ module.exports = Model => {
             })
           )
       }).validate(req.query);
-      if (error) throw new AppError(error.details[0].message, 400);
+      if (error) throw new ServerError(error.details[0].message, 400);
 
       // handle pagination or set default values
       const page = parseInt(req.query.page, 10) || 1;

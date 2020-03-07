@@ -12,6 +12,8 @@ const directory = 'public/img/';
  */
 exports.removeImg = imgPath => promisify(fs.unlink)(path.join(__dirname, '..', 'public', imgPath));
 
+exports.readFile = filePath => promisify(fs.readFile)(path.join(__dirname, '..', filePath));
+
 exports.removeImgs = async () => {
   const files = await promisify(fs.readdir)(directory);
 

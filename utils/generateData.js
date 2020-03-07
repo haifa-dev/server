@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const faker = require('faker');
 const _ = require('lodash');
 const { generateImage } = require('./fileSystem');
@@ -70,6 +71,20 @@ exports.generateProjectReq = () => {
     date: faker.date.future(generateNum()),
     content: faker.lorem.paragraph(generateNum()),
     submittedBy: faker.name.findName()
+  };
+};
+
+exports.generateAdmin = () => {
+  return {
+    name: 'root',
+    email: faker.internet.email(),
+    password: crypto
+      .createHash('sha256')
+      .update(crypto.randomBytes(32).toString('hex'))
+      .digest('hex')
+      .toString()
+      .slice(-8),
+    role: 'admin'
   };
 };
 

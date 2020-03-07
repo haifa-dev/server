@@ -1,5 +1,5 @@
 const Project = require('../models/Project');
-const AppError = require('../utils/AppError');
+const ServerError = require('../utils/ServerError');
 const Link = require('../models/Link');
 const Tag = require('../models/Tag');
 
@@ -28,7 +28,7 @@ exports.getProject = async (req, res) => {
     include: { all: true }
   });
   // validate if project exists
-  if (!project) throw new AppError('The project with the given ID was not found.', 404);
+  if (!project) throw new ServerError('The project with the given ID was not found.', 404);
 
   res.send({
     status: 'Success',
@@ -43,7 +43,7 @@ exports.deleteProject = async (req, res) => {
   // find a single user with the id
   const project = await Project.findByPk(req.params.id);
   // validate dev profiles existence in the database
-  if (!project) throw new AppError('The project with the given ID was not found.', 404);
+  if (!project) throw new ServerError('The project with the given ID was not found.', 404);
 
   await project.destroy();
 
@@ -74,7 +74,7 @@ exports.createProject = async (req, res) => {
 exports.updateProject = async (req, res) => {
   const project = await Project.findByPk(req.params.id, { include: { all: true } });
   // check if the profile exists
-  if (!project) throw new AppError('The project with the given ID was not found.', 404);
+  if (!project) throw new ServerError('The project with the given ID was not found.', 404);
 
   // clear old data
   await Link.destroy({ where: { projectId: req.params.id } });

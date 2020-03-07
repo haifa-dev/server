@@ -6,6 +6,22 @@ const Joi = require('@hapi/joi');
 const sequelize = require('../config/sequelize');
 
 class User extends Model {
+  static validate(user) {
+    return Joi.object({
+      id: Joi.string().uuid(),
+      email: Joi.string()
+        .min(3)
+        .max(255)
+        .email(),
+      password: Joi.string()
+        .min(1)
+        .max(255),
+      name: Joi.string()
+        .min(1)
+        .max(255)
+    }).validate(user);
+  }
+
   static intensifiedValidation(user) {
     return Joi.object({
       id: Joi.string().uuid(),

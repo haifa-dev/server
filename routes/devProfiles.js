@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const imgUpload = require('../middleware/imgUpload');
+const imageHandler = require('../middleware/imageHandler');
 const { devProfiles } = require('../controllers');
 const DevProfile = require('../models/DevProfile');
 const paramValidation = require('../middleware/paramValidation');
@@ -22,12 +22,12 @@ router.get('/test', async (req, res) => {
 router
   .route('/')
   .get(queryHandler(DevProfile), getDevProfiles)
-  .post(imgUpload, bodyValidation(DevProfile), createDevProfile);
+  .post(imageHandler, bodyValidation(DevProfile), createDevProfile);
 
 router
   .route('/:id')
   .get(paramValidation, getDevProfile)
   .delete(paramValidation, deleteDevProfile)
-  .put(paramValidation, imgUpload, bodyValidation(DevProfile), updateDevProfile);
+  .put(paramValidation, imageHandler, bodyValidation(DevProfile), updateDevProfile);
 
 module.exports = router;

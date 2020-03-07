@@ -1,6 +1,6 @@
 const DevProfile = require('../models/DevProfile');
-const AppError = require('../utils/AppError');
-const Social = require('../models/Link');
+const ServerError = require('../utils/ServerError');
+const Social = require('../models/Social');
 
 /**
  * get all developer profiles
@@ -28,7 +28,7 @@ exports.getDevProfile = async (req, res) => {
   });
   // validate if developer profile exists
   if (!devProfile) {
-    throw new AppError('The developer profile with the given ID was not found.', 404);
+    throw new ServerError('The developer profile with the given ID was not found.', 404);
   }
 
   res.status(200).send({
@@ -45,7 +45,7 @@ exports.deleteDevProfile = async (req, res) => {
   const devProfile = await DevProfile.findByPk(req.params.id);
   // validate dev profiles existence in the database
   if (!devProfile)
-    throw new AppError('The developer profile with the given ID was not found.', 404);
+    throw new ServerError('The developer profile with the given ID was not found.', 404);
 
   await devProfile.destroy();
   // send status if successes
@@ -64,7 +64,7 @@ exports.createDevProfile = async (req, res) => {
     where: { email: req.body.email }
   });
 
-  if (devProfile) throw new AppError('The Developer profile already exists.', 400);
+  if (devProfile) throw new ServerError('The Developer profile already exists.', 400);
 
   devProfile = await DevProfile.create(req.body, {
     include: { all: true }
@@ -83,7 +83,7 @@ exports.updateDevProfile = async (req, res) => {
   const devProfile = await DevProfile.findByPk(req.params.id, { include: { all: true } });
   // check if the profile exists
   if (!devProfile)
-    throw new AppError('The developer profile with the given ID was not found.', 404);
+    throw new ServerError('The developer profile with the given ID was not found.', 404);
   // recreate the social tags
   await Social.destroy({ where: { devProfileId: req.params.id } });
 

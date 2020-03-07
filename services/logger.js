@@ -8,13 +8,13 @@ module.exports = async (app, sequelize) => {
     sequelize
       .authenticate()
       .then(() => {
-        log('Connection to database established successfully');
+        log('Database connection established successfully');
         log('Morgan enabled');
         app.use(morgan('dev'));
       })
       .catch(ex => {
         error(
-          `${chalk.red('Error')} Establishing a Database Connection\nError:\t{\n\ttitle: ${
+          `${chalk.red('Error')} Database connection failed\nError:\t{\n\ttitle: ${
             ex.name
           }\n\taddress: ${ex.parent.address}\n\tport: ${ex.parent.port} \n}`
         );

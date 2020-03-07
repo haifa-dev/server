@@ -10,9 +10,9 @@
   "scripts": {
     "start": "node index.js",
     "dev": "npx nodemon index.js",
-    "db:create": "node ./db/seeds.js DATA_RANGE=5,4",
+    "db:create": "node ./db/init.js -r 5,4 -a || node ./db/init.js -h",
     "share": "npx ngrok http 5000",
-    "test": "NODE_ENV=test jest --verbose --runInBand --detectOpenHandles --watchAll"
+    "test": "NODE_ENV=test jest -i --detectOpenHandles --watchAll"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
   "homepage": "https://github.com/SergwayKhodyachikh/haifa-dev-backend#readme",
   "dependencies": {
     "@hapi/joi": "^17.0.2",
+    "argv": "0.0.2",
     "bcryptjs": "^2.4.3",
     "chalk": "^3.0.0",
     "cors": "^2.8.5",
@@ -34,19 +35,21 @@
     "express": "^4.17.1",
     "faker": "^4.1.0",
     "fs-extra": "^8.1.0",
-    "helmet": "^3.21.2",
+    "handlebars": "^4.7.3",
+    "helmet": "^3.21.3",
+    "html-to-text": "^5.1.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "morgan": "^1.9.1",
     "multer": "^1.4.2",
-    "nodemailer": "^6.4.2",
-    "pg": "^7.17.1",
+    "nodemailer": "^6.4.4",
+    "pg": "^7.18.2",
     "pg-hstore": "^2.3.3",
-    "sequelize": "^5.21.3",
-    "uuid": "^3.4.0"
+    "sequelize": "^5.21.5",
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.2",
+    "@types/jest": "^25.1.4",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.9.0",
@@ -65,12 +68,14 @@
       "public",
       "public/*"
     ],
-    "jest": {
-      "testEnvironment": "node",
-      "coveragePathIgnorePatterns": [
-        "/node_modules/"
-      ]
-    },
     "delay": "1000"
-  }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "delay": "1000"
 }
