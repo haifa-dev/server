@@ -3,7 +3,7 @@ const Joi = require('@hapi/joi');
 const sequelize = require('../config/sequelize');
 
 class Link extends Model {
-  static intensifiedValidation() {
+  static intensifiedValidationSchema() {
     return Joi.array()
       .min(1)
       .max(20)

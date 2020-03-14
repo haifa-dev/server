@@ -5,41 +5,48 @@ const jwt = require('jsonwebtoken');
 const Joi = require('@hapi/joi');
 const sequelize = require('../config/sequelize');
 
+const USER_SCHEMA = Joi.object({
+  id: Joi.string().uuid(),
+  email: Joi.string()
+    .min(3)
+    .max(255)
+    .email(),
+  password: Joi.string()
+    .min(1)
+    .max(255),
+  name: Joi.string()
+    .min(1)
+    .max(255)
+});
+
+const STRICT_USER_SCHEMA = Joi.object({
+  id: Joi.string().uuid(),
+  email: Joi.string()
+    .min(3)
+    .max(255)
+    .required()
+    .email(),
+  password: Joi.string()
+    .min(1)
+    .max(255)
+    .required(),
+  name: Joi.string()
+    .min(1)
+    .max(255)
+});
+
 class User extends Model {
   static validate(user) {
-    return Joi.object({
-      id: Joi.string().uuid(),
-      email: Joi.string()
-        .min(3)
-        .max(255)
-        .email(),
-      password: Joi.string()
-        .min(1)
-        .max(255),
-      name: Joi.string()
-        .min(1)
-        .max(255)
-    }).validate(user);
+    return USER_SCHEMA.validate(user);
   }
 
   static intensifiedValidation(user) {
-    return Joi.object({
-      id: Joi.string().uuid(),
-      email: Joi.string()
-        .min(3)
-        .max(255)
-        .required()
-        .email(),
-      password: Joi.string()
-        .min(1)
-        .max(255)
-        .required(),
-      name: Joi.string()
-        .min(1)
-        .max(255)
-    }).validate(user);
+    return STRICT_USER_SCHEMA.validate(user);
   }
 
+  /**
+   * @param {number} authDate timestamp of auth information change
+   */
   authUserChanged(authDate) {
     // saving document can delay after sign jwt token
     return authDate <= this.getDataValue('updatedAt').getTime() - 1000;

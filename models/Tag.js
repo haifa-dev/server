@@ -3,7 +3,7 @@ const Joi = require('@hapi/joi');
 const sequelize = require('../config/sequelize');
 
 class Tag extends Model {
-  static intensifiedValidation() {
+  static intensifiedValidationSchema() {
     return Joi.array().items(
       Joi.object({
         title: Joi.string()
