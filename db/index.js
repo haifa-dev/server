@@ -1,11 +1,11 @@
-const DevProfile = require('./DevProfile');
-const Event = require('./Event');
-const ProjectReq = require('./ProjectReq');
-const Project = require('./Project');
-const User = require('./User');
-const Link = require('./Link');
-const Social = require('./Social');
-const Tag = require('./Tag');
+const DevProfile = require('./models/DevProfile');
+const Event = require('./models/Event');
+const ProjectReq = require('./models/ProjectReq');
+const Project = require('./models/Project');
+const User = require('./models/User');
+const Link = require('./models/Link');
+const Social = require('./models/Social');
+const Tag = require('./models/Tag');
 
 module.exports = {
   DevProfile,

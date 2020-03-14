@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Joi = require('@hapi/joi');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../../config/sequelize');
 
 const USER_SCHEMA = Joi.object({
   id: Joi.string().uuid(),

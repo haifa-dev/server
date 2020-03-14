@@ -1,8 +1,8 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../../config/sequelize');
 const Tag = require('./Tag');
-const { removeImg } = require('../utils/fileSystem');
+const { removeImg } = require('../../utils/fileSystem');
 
 const STRICT_EVENT_SCHEMA = Joi.object({
   id: Joi.string().uuid(),

@@ -1,8 +1,8 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../../config/sequelize');
 const Social = require('./Social');
-const { removeImg } = require('../utils/fileSystem');
+const { removeImg } = require('../../utils/fileSystem');
 
 const STRICT_DEV_PROFILE_SCHEMA = Joi.object({
   id: Joi.string().uuid(),
