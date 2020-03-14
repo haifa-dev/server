@@ -4,7 +4,7 @@ const { events } = require('../controllers');
 const paramValidation = require('../middleware/paramValidation');
 const queryHandler = require('../middleware/queryHandler');
 const bodyValidation = require('../middleware/bodyValidation');
-const Event = require('../models/Event');
+const { Event } = require('../db');
 
 const { getEvents, getEvent, deleteEvent, createEvent, updateEvent } = events;
 

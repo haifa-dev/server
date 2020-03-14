@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const _ = require('lodash');
-const User = require('../models/User');
+const { User } = require('../db');
 const { mailPasswordRestToken } = require('../services/Mail');
 
 const ServerError = require('../utils/ServerError');

@@ -3,12 +3,8 @@ const _ = require('lodash');
 const argv = require('argv');
 const chalk = require('chalk');
 const sequelize = require('../config/sequelize');
-const DevProfile = require('../models/DevProfile');
-const Event = require('../models/Event');
-const ProjectReq = require('../models/ProjectReq');
-const Project = require('../models/Project');
-const User = require('../models/User');
 const { removeImgs } = require('../utils/fileSystem');
+const { DevProfile, Event, Project, ProjectReq, User } = require('.');
 
 // command line argument parsing
 const { options } = argv

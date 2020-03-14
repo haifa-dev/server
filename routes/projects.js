@@ -4,7 +4,7 @@ const paramValidation = require('../middleware/paramValidation');
 const imageHandler = require('../middleware/imageHandler');
 const queryHandler = require('../middleware/queryHandler');
 const bodyValidation = require('../middleware/bodyValidation');
-const Project = require('../models/Project');
+const { Project } = require('../db');
 
 const { getProjects, createProject, getProject, deleteProject, updateProject } = projects;
 

@@ -1,6 +1,5 @@
-const DevProfile = require('../models/DevProfile');
+const { DevProfile, Social } = require('../db');
 const ServerError = require('../utils/ServerError');
-const Social = require('../models/Social');
 
 /**
  * get all developer profiles

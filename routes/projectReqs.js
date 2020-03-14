@@ -3,7 +3,7 @@ const { projectReqs } = require('../controllers');
 const paramValidation = require('../middleware/paramValidation');
 const queryHandler = require('../middleware/queryHandler');
 const bodyValidation = require('../middleware/bodyValidation');
-const ProjectReq = require('../models/ProjectReq');
+const { ProjectReq } = require('../db');
 
 const {
   getProjectReqs,

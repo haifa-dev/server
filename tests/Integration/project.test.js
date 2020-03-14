@@ -4,7 +4,7 @@ const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
-const Project = require('../../models/Project');
+const { Project } = require('../../db');
 const { removeImg } = require('../../utils/fileSystem');
 const { generateProject } = require('../../utils/generateData');
 

@@ -4,7 +4,7 @@ const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
-const ProjectReq = require('../../models/ProjectReq');
+const { ProjectReq } = require('../../db');
 const { generateProjectReq } = require('../../utils/generateData');
 
 const baseUrl = '/api/v1';

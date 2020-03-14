@@ -4,7 +4,7 @@ const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
-const Event = require('../../models/Event');
+const { Event } = require('../../db');
 const { removeImg } = require('../../utils/fileSystem');
 const { generateEvent } = require('../../utils/generateData');
 

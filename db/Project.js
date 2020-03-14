@@ -1,8 +1,8 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/sequelize');
-const Tag = require('../models/Tag');
-const Link = require('../models/Link');
+const Tag = require('./Tag');
+const Link = require('./Link');
 const { removeImg } = require('../utils/fileSystem');
 
 const STRICT_PROJECT_SCHEMA = Joi.object({

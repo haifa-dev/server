@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const imageHandler = require('../middleware/imageHandler');
 const { devProfiles } = require('../controllers');
-const DevProfile = require('../models/DevProfile');
+const { DevProfile } = require('../db');
 const paramValidation = require('../middleware/paramValidation');
 const queryHandler = require('../middleware/queryHandler');
 const bodyValidation = require('../middleware/bodyValidation');
