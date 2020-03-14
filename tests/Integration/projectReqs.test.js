@@ -4,7 +4,7 @@ const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
-const ProjectReq = require('../../models/ProjectReq');
+const { ProjectReq } = require('../../db');
 const { generateProjectReq } = require('../../utils/generateData');
 
 const baseUrl = '/api/v1';
@@ -15,9 +15,7 @@ const { log, error } = console;
 
 const establishConnection = async () => {
   try {
-    request = supertest(app);
-    await sequelize.authenticate();
-    await sequelize.sync({ force: true });
+    request = supertest(await app);
     log('Connection to database established successfully');
   } catch (ex) {
     error(ex);
@@ -28,7 +26,7 @@ const establishConnection = async () => {
 const terminateConnection = async () => {
   try {
     await sequelize.close();
-    app.close();
+    (await app).close();
   } catch (ex) {
     error(ex);
   }
@@ -60,7 +58,6 @@ describe(`${url}`, () => {
       expect(res.status).toBe(200);
       expect(res.body.results).toBe(10);
     });
-
 
     it('should return limit 2 ProjectReqs', async () => {
       const res = await request.get(`${url}?limit=2`);

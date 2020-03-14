@@ -4,25 +4,29 @@ const faker = require('faker');
 const https = require('https');
 const { promisify } = require('util');
 
-const directory = 'public/img/';
+const IMAGES_DIR = 'public/img/';
+const GITKEEP = /.gitkeep/;
+
+const unlinkAsync = promisify(fs.unlink);
+const readdirAsync = promisify(fs.readdir);
+const readFileAsync = promisify(fs.readFile);
 
 /**
  * remove image from the given location
- * @param {*} imgPath image location in the project include public and img folders
+ * @param {string} imgPath image location in the project include public and img folders
  */
-exports.removeImg = imgPath => promisify(fs.unlink)(path.join(__dirname, '..', 'public', imgPath));
+exports.removeImg = imgPath => unlinkAsync(path.join(__dirname, '..', 'public', imgPath));
 
-exports.readFile = filePath => promisify(fs.readFile)(path.join(__dirname, '..', filePath));
+exports.readFile = filePath => readFileAsync(path.join(__dirname, '..', filePath));
 
 exports.removeImgs = async () => {
-  const files = await promisify(fs.readdir)(directory);
-
-  files.forEach(file => {
-    const gitKeep = /.gitkeep/;
-    if (!gitKeep.test(file)) {
-      promisify(fs.unlink)(path.join(directory, file));
-    }
-  });
+  const images = await readdirAsync(IMAGES_DIR);
+  await Promise.all(
+    images
+      .filter(file => !GITKEEP.test(file))
+      .map(file => path.join(IMAGES_DIR, file))
+      .map(unlinkAsync)
+  );
 };
 
 exports.generateImage = (

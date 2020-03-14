@@ -1,26 +1,28 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../../config/sequelize');
 const Social = require('./Social');
-const { removeImg } = require('../utils/fileSystem');
+const { removeImg } = require('../../utils/fileSystem');
+
+const STRICT_DEV_PROFILE_SCHEMA = Joi.object({
+  id: Joi.string().uuid(),
+  name: Joi.string()
+    .required()
+    .min(1)
+    .max(255),
+  image: Joi.string().required(),
+  bio: Joi.string().required(),
+  email: Joi.string()
+    .required()
+    .email()
+    .min(3)
+    .max(255),
+  socials: Social.intensifiedValidationSchema()
+});
 
 class DevProfile extends Model {
   static intensifiedValidation(devProfile) {
-    return Joi.object({
-      id: Joi.string().uuid(),
-      name: Joi.string()
-        .required()
-        .min(1)
-        .max(255),
-      image: Joi.string().required(),
-      bio: Joi.string().required(),
-      email: Joi.string()
-        .required()
-        .email()
-        .min(3)
-        .max(255),
-      socials: Social.intensifiedValidation()
-    }).validate(devProfile);
+    return STRICT_DEV_PROFILE_SCHEMA.validate(devProfile);
   }
 }
 
@@ -56,7 +58,9 @@ DevProfile.init(
     sequelize,
     hooks: {
       beforeUpdate: async devProfile => {
-        if (devProfile.getDataValue('image')) await removeImg(devProfile.previous('image'));
+        if (devProfile.getDataValue('image')) {
+          await removeImg(devProfile.previous('image'));
+        }
       },
       beforeDestroy: async devProfile => {
         await removeImg(devProfile.previous('image'));

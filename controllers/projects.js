@@ -1,7 +1,5 @@
-const Project = require('../models/Project');
+const { Project, Link, Tag } = require('../db');
 const ServerError = require('../utils/ServerError');
-const Link = require('../models/Link');
-const Tag = require('../models/Tag');
 
 /**
  * get all the projects

@@ -1,4 +1,4 @@
-const ProjectReq = require('../models/ProjectReq');
+const { ProjectReq } = require('../db');
 const ServerError = require('../utils/ServerError');
 
 /**

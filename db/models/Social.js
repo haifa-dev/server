@@ -1,9 +1,9 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../../config/sequelize');
 
-class Link extends Model {
-  static intensifiedValidation() {
+class Social extends Model {
+  static intensifiedValidationSchema() {
     return Joi.array()
       .min(1)
       .max(20)
@@ -26,7 +26,7 @@ class Link extends Model {
   }
 }
 
-Link.init(
+Social.init(
   {
     name: {
       type: DataTypes.STRING,
@@ -40,9 +40,8 @@ Link.init(
     }
   },
   {
-    sequelize,
-    modelName: 'link'
+    sequelize
   }
 );
 
-module.exports = Link;
+module.exports = Social;

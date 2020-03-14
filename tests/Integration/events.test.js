@@ -4,7 +4,7 @@ const _ = require('lodash');
 const supertest = require('supertest');
 const app = require('../../index');
 const sequelize = require('../../config/sequelize');
-const Event = require('../../models/Event');
+const { Event } = require('../../db');
 const { removeImg } = require('../../utils/fileSystem');
 const { generateEvent } = require('../../utils/generateData');
 
@@ -16,9 +16,7 @@ const { log, error } = console;
 
 const establishConnection = async () => {
   try {
-    request = supertest(app);
-    await sequelize.authenticate();
-    await sequelize.sync({ force: true });
+    request = supertest(await app);
     log('Connection to database established successfully');
   } catch (ex) {
     error(ex);
@@ -29,7 +27,7 @@ const establishConnection = async () => {
 const terminateConnection = async () => {
   try {
     await sequelize.close();
-    app.close();
+    (await app).close();
   } catch (ex) {
     error(ex);
   }

@@ -1,25 +1,28 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/sequelize');
-const Tag = require('../models/Tag');
-const Link = require('../models/Link');
-const { removeImg } = require('../utils/fileSystem');
+const sequelize = require('../../config/sequelize');
+const Tag = require('./Tag');
+const Link = require('./Link');
+const { removeImg } = require('../../utils/fileSystem');
+
+const STRICT_PROJECT_SCHEMA = Joi.object({
+  id: Joi.string().uuid(),
+  title: Joi.string()
+    .required()
+    .min(1)
+    .max(255),
+  description: Joi.string().required(),
+  image: Joi.string().required(),
+  links: Link.intensifiedValidationSchema(),
+  tags: Tag.intensifiedValidationSchema()
+});
 
 class Project extends Model {
   static intensifiedValidation(project) {
-    return Joi.object({
-      id: Joi.string().uuid(),
-      title: Joi.string()
-        .required()
-        .min(1)
-        .max(255),
-      description: Joi.string().required(),
-      image: Joi.string().required(),
-      links: Link.intensifiedValidation(),
-      tags: Tag.intensifiedValidation()
-    }).validate(project);
+    return STRICT_PROJECT_SCHEMA.validate(project);
   }
 }
+
 Project.init(
   {
     id: {

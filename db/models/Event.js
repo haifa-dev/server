@@ -1,23 +1,25 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../../config/sequelize');
 const Tag = require('./Tag');
-const { removeImg } = require('../utils/fileSystem');
+const { removeImg } = require('../../utils/fileSystem');
+
+const STRICT_EVENT_SCHEMA = Joi.object({
+  id: Joi.string().uuid(),
+  date: Joi.date().required(),
+  title: Joi.string()
+    .required()
+    .min(1)
+    .max(255),
+  description: Joi.string().required(),
+  location: Joi.string().required(),
+  image: Joi.string(),
+  tags: Tag.intensifiedValidationSchema()
+});
 
 class Event extends Model {
   static intensifiedValidation(event) {
-    return Joi.object({
-      id: Joi.string().uuid(),
-      date: Joi.date().required(),
-      title: Joi.string()
-        .required()
-        .min(1)
-        .max(255),
-      description: Joi.string().required(),
-      location: Joi.string().required(),
-      image: Joi.string(),
-      tags: Tag.intensifiedValidation()
-    }).validate(event);
+    return STRICT_EVENT_SCHEMA.validate(event);
   }
 }
 

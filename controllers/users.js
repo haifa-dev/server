@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const _ = require('lodash');
-const User = require('../models/User');
+const { User } = require('../db');
 const { mailPasswordRestToken } = require('../services/Mail');
 
 const ServerError = require('../utils/ServerError');
@@ -29,7 +29,7 @@ exports.deleteUser = async (req, res) => {
   });
 };
 
-exports.createUser = async (req, res, next) => {
+exports.createUser = async (req, res) => {
   let user = await User.findOne({ where: { email: req.body.email } });
   if (user) throw new ServerError('User already registered', 400);
 

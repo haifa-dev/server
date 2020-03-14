@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 const chalk = require('chalk');
+const { isDev } = require('../config/config');
 
-const { NODE_ENV: env } = process.env;
 const { log } = console;
 
 module.exports = new Sequelize(
@@ -11,12 +11,7 @@ module.exports = new Sequelize(
   {
     host: 'localhost',
     dialect: 'postgres',
-    logging:
-      env === 'development' || env === undefined
-        ? query => {
-            log(chalk.cyan(`\n${query}\n`));
-          }
-        : false,
+    logging: isDev && (query => log(chalk.cyan(`\n${query}\n`))),
     define: {
       underscored: true
     }

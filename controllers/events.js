@@ -1,6 +1,5 @@
-const Event = require('../models/Event');
+const { Event, Tag } = require('../db');
 const ServerError = require('../utils/ServerError');
-const Tag = require('../models/Tag');
 
 /**
  * get all the events
