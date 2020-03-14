@@ -1,8 +1,13 @@
-const path = require('path');
+/**
+ * TIP: Use vscode 'Change Language Mode' command (Ctrl/Cmd + Shift + P)
+ * To view this as a javascript file
+ */
+
+const { resolve } = require('path');
 
 module.exports = {
-    'config': path.resolve('src/db/config/config.js'),
-    'models-path': path.resolve('src/db/models'),
-    'seeders-path': path.resolve('src/db/seeders'),
-    'migrations-path': path.resolve('src/db/migrations')
-}
+  config: resolve('config/database-config.js'),
+  'models-path': resolve('db/models'),
+  'seeders-path': resolve('db/seeders'),
+  'migrations-path': resolve('db/migrations')
+};
