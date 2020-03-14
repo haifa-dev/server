@@ -12,7 +12,8 @@
     "dev": "npx nodemon index.js",
     "db:create": "npx sequelize-cli db:seed:all",
     "share": "npx ngrok http 5000",
-    "test": "NODE_ENV=test jest -i --detectOpenHandles --watchAll",
+    "test": "NODE_ENV=test jest -i",
+    "test:watch": "NODE_ENV=test jest -i --detectOpenHandles --watchAll",
     "lint": "eslint --ignore-path .gitignore ."
   },
   "repository": {

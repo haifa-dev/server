@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 const Handlebars = require('handlebars');
+
+const { isDev } = require('../../config/config');
 const { readFile } = require('../../utils/fileSystem');
 
 const { log, error } = console;
@@ -13,25 +15,15 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// https://mailtrap.io/ configuration
-// can use https://mailsac.com/ for testing purpose
-// const transporter = nodemailer.createTransport({
-//   host: process.env.EMAIL_HOST,
-//   port: process.env.EMAIL_PORT,
-//   auth: {
-//     user: process.env.EMAIL_USERNAME,
-//     pass: process.env.EMAIL_PASSWORD
-//   }
-// });
-
-if (process.env.NODE_ENV !== 'production')
-  transporter.verify(function(err) {
+if (isDev) {
+  transporter.verify(err => {
     if (error) {
       error('SMTP server connection failed\n', err);
     } else {
       log('SMTP server connection established successfully');
     }
   });
+}
 
 module.exports.mailPasswordRestToken = async (user, resetURL) => {
   const source = await readFile('/services/Mail/view/resetPassword.hbs');

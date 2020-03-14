@@ -15,16 +15,14 @@ let request;
 const { log, error } = console;
 
 const establishConnection = async () => {
-  request = supertest(app);
-  await sequelize.authenticate();
-  await sequelize.sync({ force: true });
+  request = supertest(await app);
   log('Connection to database established successfully');
 };
 
 const terminateConnection = async () => {
   try {
     await sequelize.close();
-    app.close();
+    (await app).close();
   } catch (ex) {
     error(ex);
   }

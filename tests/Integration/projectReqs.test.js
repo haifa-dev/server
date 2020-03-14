@@ -15,9 +15,7 @@ const { log, error } = console;
 
 const establishConnection = async () => {
   try {
-    request = supertest(app);
-    await sequelize.authenticate();
-    await sequelize.sync({ force: true });
+    request = supertest(await app);
     log('Connection to database established successfully');
   } catch (ex) {
     error(ex);
@@ -28,7 +26,7 @@ const establishConnection = async () => {
 const terminateConnection = async () => {
   try {
     await sequelize.close();
-    app.close();
+    (await app).close();
   } catch (ex) {
     error(ex);
   }
