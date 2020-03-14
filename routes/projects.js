@@ -1,9 +1,6 @@
 const router = require('express').Router();
 const { projects } = require('../controllers');
-const paramValidation = require('../middleware/paramValidation');
-const imageHandler = require('../middleware/imageHandler');
-const queryHandler = require('../middleware/queryHandler');
-const bodyValidation = require('../middleware/bodyValidation');
+const { paramValidation, imageHandler, queryHandler, bodyValidation } = require('../middleware');
 const { Project } = require('../db');
 
 const { getProjects, createProject, getProject, deleteProject, updateProject } = projects;
