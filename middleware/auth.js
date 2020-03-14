@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const ServerError = require('../utils/ServerError');
 
+const verifyJwt = promisify(jwt.verify);
+
 module.exports = async (req, res, next) => {
   // if (process.env.DISABLE_AUTH) return next();
   // 401 Unauthorized
@@ -14,7 +16,7 @@ module.exports = async (req, res, next) => {
 
     if (!token) throw new ServerError('Invalid Credentials', 401);
     // validate authentication token
-    const decode = await promisify(jwt.verify)(token, process.env.JWT_KEY);
+    const decode = await verifyJwt(token, process.env.JWT_KEY);
 
     // check if user still exists
     const user = await User.findByPk(decode.sub);
