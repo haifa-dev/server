@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { DATABASE, DATABASE_PASSWORD, DATABASE_USERNAME } = process.env;
 
 const DATABASE_CONFIG = {

@@ -74,9 +74,9 @@ exports.generateProjectReq = () => {
   };
 };
 
-exports.generateAdmin = () => {
+exports.generateAdmin = name => {
   return {
-    name: 'root',
+    name,
     email: faker.internet.email(),
     password: crypto
       .createHash('sha256')

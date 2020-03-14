@@ -4,7 +4,7 @@ const argv = require('argv');
 const chalk = require('chalk');
 const sequelize = require('../config/sequelize');
 const { removeImgs } = require('../utils/fileSystem');
-const { DevProfile, Event, Project, ProjectReq, User } = require('.');
+const { DevProfile, Event, Project, ProjectReq } = require('.');
 
 // command line argument parsing
 const { options } = argv
@@ -17,13 +17,6 @@ const { options } = argv
       example: "'npm run db:create --range=5,6' or 'npm run db:create -r 3,6'"
     },
     {
-      name: 'admin',
-      short: 'a',
-      type: 'boolean',
-      description: 'Defines if admin generation will be executed ',
-      example: "'npm run db:create --admin' or 'npm run db:create -a'"
-    },
-    {
       name: 'noData',
       type: 'boolean',
       short: 'N',
@@ -33,15 +26,14 @@ const { options } = argv
   ])
   .run();
 
-const { range, admin, noData } = options;
+const { range, noData } = options;
 
 const {
   generateDevProfile,
   generateEvent,
   generateProject,
   generateProjectReq,
-  generateNum,
-  generateAdmin
+  generateNum
 } = require('../utils/generateData');
 
 const { log, error } = console;
@@ -82,16 +74,6 @@ async function generateData() {
  * Generate, create and output root user with admin role.
  * @private
  */
-async function createRootUser() {
-  const root = generateAdmin();
-  await User.create(root);
-  log(chalk.green('Admin user created, user details:'));
-  log(chalk.green('name:'), root.name);
-  log(chalk.green('email:'), root.email);
-  log(chalk.green('password:'), root.password);
-  log(chalk.green('role:'), root.role);
-  log(chalk.red('Note: You prefer to keep those to yourself.'));
-}
 
 (async () => {
   try {
@@ -102,7 +84,6 @@ async function createRootUser() {
     log(chalk.green('Synchronize database according to the models and drop existing tables'));
     await sequelize.sync({ force: true });
     if (!noData) await generateData();
-    if (admin) await createRootUser();
     process.exit(0);
   } catch (err) {
     error(err);
