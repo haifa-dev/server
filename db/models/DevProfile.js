@@ -58,7 +58,9 @@ DevProfile.init(
     sequelize,
     hooks: {
       beforeUpdate: async devProfile => {
-        if (devProfile.getDataValue('image')) await removeImg(devProfile.previous('image'));
+        if (devProfile.getDataValue('image')) {
+          await removeImg(devProfile.previous('image'));
+        }
       },
       beforeDestroy: async devProfile => {
         await removeImg(devProfile.previous('image'));
