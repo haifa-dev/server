@@ -2,33 +2,35 @@
 
 ## Prerequisites:
 
-- You need an PostgreSQL database installed and configured to use the project.
-  You can get PostgreSQL from [here][postgresql].
+- You need a `PostgreSQL` database installed and configured.
+  You can get `PostgreSQL` from [here][postgresql].
 
-- You need git to clone the project repository. You can get git from [here][git].
+- You need `git` to clone the project repository. You can get `git` from [here][git].
 
-- Using several Node.js tools to initialize and test the project. You must have Node.js
-  and its package manager (npm) installed. You can get them from [here][node].
+- You must have `Node.js` and its package manager (`npm`) installed. You can get them from [here][node].
 
-- You can run PostgreSQL with [Docker][docker]:
+- You can run `PostgreSQL` with [Docker][docker]:
 
 ```sh
 sudo docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres
 ```
 
-## To run the Application in Development:
+## Getting started
 
 - Open the terminal at the project directory and run the command:
 
 ```sh
-npm i;touch .env;echo "DATABASE=postgres\nDATABASE_USERNAME=postgres\nDATABASE_PASSWORD=postgres\nJWT_KEY=PRIVATE" >> .env;npm start;
-
+npm install
+cp .env.example .env
+npm start
 ```
 
 - On Windows:
 
-```sh
-npm i;type .env;echo "DATABASE=postgres DATABASE_USERNAME=postgres DATABASE_PASSWORD=postgres JWT_KEY=PRIVATE" >> .env;npm start;
+```bat
+npm install
+copy .env.example .env
+npm start
 ```
 
 - You should see the server running with the output:
