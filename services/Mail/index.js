@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 //   }
 // });
 
-if (process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'development')
+if (process.env.NODE_ENV !== 'production')
   transporter.verify(function(err) {
     if (error) {
       error('SMTP server connection failed\n', err);

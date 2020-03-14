@@ -29,7 +29,7 @@ exports.deleteUser = async (req, res) => {
   });
 };
 
-exports.createUser = async (req, res, next) => {
+exports.createUser = async (req, res) => {
   let user = await User.findOne({ where: { email: req.body.email } });
   if (user) throw new ServerError('User already registered', 400);
 
