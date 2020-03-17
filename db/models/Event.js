@@ -53,6 +53,7 @@ Event.init(
   },
   {
     sequelize,
+    defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
       beforeUpdate: async event => {
         if (event.getDataValue('image')) await removeImg(event.previous('image'));

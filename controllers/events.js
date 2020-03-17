@@ -5,11 +5,7 @@ const ServerError = require('../utils/ServerError');
  * get all the events
  */
 exports.getEvents = async (req, res) => {
-  const events = await Event.findAll({
-    subQuery: true,
-    ...req.queryParams,
-    include: { all: true }
-  });
+  const events = await Event.findAll(req.queryParams);
 
   res.send({
     status: 'Success',
@@ -22,9 +18,7 @@ exports.getEvents = async (req, res) => {
  * get event by id
  */
 exports.getEvent = async (req, res) => {
-  const event = await Event.findByPk(req.params.id, {
-    include: { all: true }
-  });
+  const event = await Event.findByPk(req.params.id);
   // validate if event exists
   if (!event) {
     throw new ServerError('The event with the given ID was not found.', 404);

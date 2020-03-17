@@ -56,6 +56,7 @@ DevProfile.init(
   },
   {
     sequelize,
+    defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
       beforeUpdate: async devProfile => {
         if (devProfile.getDataValue('image')) {

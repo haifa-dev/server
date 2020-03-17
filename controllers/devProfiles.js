@@ -5,11 +5,7 @@ const ServerError = require('../utils/ServerError');
  * get all developer profiles
  */
 exports.getDevProfiles = async (req, res) => {
-  const devProfiles = await DevProfile.findAll({
-    subQuery: true,
-    ...req.queryParams,
-    include: { all: true }
-  });
+  const devProfiles = await DevProfile.findAll(req.queryParams);
 
   res.send({
     status: 'Success',
@@ -22,9 +18,7 @@ exports.getDevProfiles = async (req, res) => {
  * get developer profile by id
  */
 exports.getDevProfile = async (req, res) => {
-  const devProfile = await DevProfile.findByPk(req.params.id, {
-    include: { all: true }
-  });
+  const devProfile = await DevProfile.findByPk(req.params.id);
   // validate if developer profile exists
   if (!devProfile) {
     throw new ServerError('The developer profile with the given ID was not found.', 404);

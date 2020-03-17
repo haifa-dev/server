@@ -5,11 +5,7 @@ const ServerError = require('../utils/ServerError');
  * get all the projects
  */
 exports.getProjects = async (req, res) => {
-  const projects = await Project.findAll({
-    subQuery: true,
-    ...req.queryParams,
-    include: { all: true }
-  });
+  const projects = await Project.findAll(req.queryParams);
 
   res.send({
     status: 'Success',
@@ -22,9 +18,7 @@ exports.getProjects = async (req, res) => {
  * get project by id
  */
 exports.getProject = async (req, res) => {
-  const project = await Project.findByPk(req.params.id, {
-    include: { all: true }
-  });
+  const project = await Project.findByPk(req.params.id);
   // validate if project exists
   if (!project) throw new ServerError('The project with the given ID was not found.', 404);
 

@@ -5,11 +5,7 @@ const ServerError = require('../utils/ServerError');
  * get all the project requests
  */
 exports.getProjectReqs = async (req, res) => {
-  const projectReqs = await ProjectReq.findAll({
-    subQuery: true,
-    ...req.queryParams,
-    include: { all: true }
-  });
+  const projectReqs = await ProjectReq.findAll(req.queryParams, { raw: true });
 
   res.send({
     status: 'Success',

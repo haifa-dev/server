@@ -47,6 +47,7 @@ Project.init(
   },
   {
     sequelize,
+    defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
       beforeUpdate: async project => {
         if (project.getDataValue('image')) await removeImg(project.previous('image'));
