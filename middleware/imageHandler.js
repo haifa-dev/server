@@ -20,8 +20,8 @@ const fileFilter = (req, file, cb) => {
  * check if the image passed the fileFilter Validation, if pass insert the image path into req.body.image
  */
 const imgInserted = (req, res, next) => {
-  if (!req.file) throw new ServerError('Attached file is not an image', 422);
-  req.body.image = `img/${req.file.filename}`;
+  // throw new ServerError('Attached file is not an image', 422);
+  if (req.file) req.body.image = `img/${req.file.filename}`;
   next();
 };
 

@@ -15,7 +15,7 @@ const { log } = console;
 
 module.exports = async () => {
   await sequelize.authenticate();
-  await sequelize.sync({ force: true });
+  await sequelize.sync();
 
   log(chalk.green('Database connection established'));
 
@@ -23,7 +23,7 @@ module.exports = async () => {
   app.use(morgan('dev'));
   app.use(helmet());
   app.use(express.json({ limit: 52428800 }));
-  app.use(express.static(path.join(__dirname, '..', 'public')));
+  app.use(express.static(path.join(__dirname, 'public')));
   app.use(cors());
   app.options('*', cors());
   app.use('/api/v1', router);

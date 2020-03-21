@@ -12,7 +12,7 @@ const STRICT_PROJECT_SCHEMA = Joi.object({
     .min(1)
     .max(255),
   description: Joi.string().required(),
-  image: Joi.string().required(),
+  image: Joi.string(),
   links: Link.intensifiedValidationSchema(),
   tags: Tag.intensifiedValidationSchema()
 });
@@ -42,7 +42,8 @@ Project.init(
     },
     description: { type: DataTypes.TEXT, validate: { notEmpty: true } },
     image: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: 'default/project.jpg'
     }
   },
   {
@@ -50,10 +51,17 @@ Project.init(
     defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
       beforeUpdate: async project => {
-        if (project.getDataValue('image')) await removeImg(project.previous('image'));
+        const newImage = project.getDataValue('image');
+        const oldImage = project.previous('image');
+        const createdByUser = /^img/.test(oldImage);
+
+        if (newImage && createdByUser) await removeImg(oldImage);
       },
       beforeDestroy: async project => {
-        await removeImg(project.previous('image'));
+        const image = project.getDataValue('image');
+        const createdByUser = /^img/.test(image);
+
+        if (createdByUser) await removeImg(image);
       }
     }
   }

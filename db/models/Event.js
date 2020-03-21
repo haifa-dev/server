@@ -48,7 +48,8 @@ Event.init(
     },
     location: { type: DataTypes.STRING },
     image: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: 'default/event.jpg'
     }
   },
   {
@@ -56,10 +57,17 @@ Event.init(
     defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
       beforeUpdate: async event => {
-        if (event.getDataValue('image')) await removeImg(event.previous('image'));
+        const newImage = event.getDataValue('image');
+        const oldImage = event.previous('image');
+        const createdByUser = /^img/.test(oldImage);
+
+        if (newImage && createdByUser) await removeImg(oldImage);
       },
       beforeDestroy: async event => {
-        await removeImg(event.previous('image'));
+        const image = event.getDataValue('image');
+        const createdByUser = /^img/.test(image);
+
+        if (createdByUser) await removeImg(image);
       }
     }
   }

@@ -3,6 +3,7 @@ const Joi = require('@hapi/joi');
 const sequelize = require('../../config/sequelize');
 const Link = require('./Link');
 const { removeImg } = require('../../utils/fileSystem');
+const { generateImage } = require('../../utils/fileSystem');
 
 const STRICT_DEV_PROFILE_SCHEMA = Joi.object({
   id: Joi.string().uuid(),
@@ -10,7 +11,7 @@ const STRICT_DEV_PROFILE_SCHEMA = Joi.object({
     .required()
     .min(1)
     .max(255),
-  image: Joi.string().required(),
+  image: Joi.string(),
   bio: Joi.string().required(),
   email: Joi.string()
     .required()
@@ -37,7 +38,6 @@ DevProfile.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'unknown',
       validate: { len: [1, 255], notEmpty: true, notNull: true }
     },
     image: { type: DataTypes.STRING },
@@ -58,6 +58,9 @@ DevProfile.init(
     sequelize,
     defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
+      beforeCreate: async devProfile => {
+        if (!devProfile.getDataValue('image')) devProfile.image = await generateImage();
+      },
       beforeUpdate: async devProfile => {
         if (devProfile.getDataValue('image')) {
           await removeImg(devProfile.previous('image'));
@@ -70,11 +73,7 @@ DevProfile.init(
   }
 );
 
-const associationParams = {
-  as: 'socials',
-  foreignKey: { name: 'linkableId' },
-  constraints: false
-};
+const associationParams = { as: 'socials', foreignKey: { name: 'linkableId' }, constraints: false };
 
 DevProfile.hasMany(Link, associationParams);
 Link.belongsTo(DevProfile, associationParams);
