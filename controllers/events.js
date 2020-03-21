@@ -35,6 +35,8 @@ exports.getEvent = async (req, res) => {
 exports.deleteEvent = async (req, res) => {
   // find a single user with the id
   const event = await Event.findByPk(req.params.id);
+  await Tag.destroy({ where: { taggedId: req.params.id } });
+
   // validate dev profiles existence in the database
   if (!event) throw new ServerError('The event with the given ID was not found.', 404);
 
@@ -50,7 +52,7 @@ exports.deleteEvent = async (req, res) => {
  * create new event via request body
  */
 exports.createEvent = async (req, res) => {
-  const event = await Event.create(req.body, { include: 'tags' });
+  const event = await Event.create(req.body, { include: { all: true } });
   res.status(201).send({
     status: 'Success',
     data: event
@@ -58,21 +60,21 @@ exports.createEvent = async (req, res) => {
 };
 
 exports.updateEvent = async (req, res) => {
-  const event = await Event.findByPk(req.params.id, { include: 'tags' });
+  const event = await Event.findByPk(req.params.id, { include: { all: true } });
   // check if the event exists
   if (!event) throw new ServerError('The event with the given ID was not found.', 404);
 
-  await Tag.destroy({ where: { EventId: req.params.id } });
+  await Tag.destroy({ where: { taggedId: req.params.id } });
 
   if (req.body.tags) {
     req.body.tags.forEach(tag => {
-      tag.devProfileId = req.params.id;
+      tag.taggedId = req.params.id;
     });
     await Tag.bulkCreate(req.body.tags);
   }
 
   await event.update(req.body);
-  await event.reload({ include: 'tags' });
+  await event.reload({ include: { all: true } });
 
   res.send({
     status: 'Success',

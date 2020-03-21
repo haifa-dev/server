@@ -28,6 +28,7 @@ class Link extends Model {
 
 Link.init(
   {
+    linkableId: DataTypes.UUID,
     name: {
       type: DataTypes.STRING,
       allowNull: false,

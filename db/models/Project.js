@@ -59,16 +59,15 @@ Project.init(
   }
 );
 
-const associationParams = {
-  as: 'links',
-  foreignKey: { name: 'projectId' },
-  onDelete: 'CASCADE'
+const TagAssociationParams = { foreignKey: 'taggedId', constraints: false };
+Project.hasMany(Tag, TagAssociationParams);
+Tag.belongsTo(Project, TagAssociationParams);
+
+const LinkAssociationParams = {
+  foreignKey: 'linkableId',
+  constraints: false
 };
-
-Project.hasMany(Tag);
-Tag.belongsTo(Project);
-
-Project.hasMany(Link, associationParams);
-Link.belongsTo(Project, associationParams);
+Project.hasMany(Link, LinkAssociationParams);
+Link.belongsTo(Project, LinkAssociationParams);
 
 module.exports = Project;

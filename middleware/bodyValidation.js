@@ -9,6 +9,9 @@ const ServerError = require('../utils/ServerError');
 module.exports = (Model, strengthened = true) => {
   return (req, res, next) => {
     try {
+      delete req.body.updatedAt;
+      delete req.body.createdAt;
+
       const { error } = strengthened
         ? Model.intensifiedValidation(req.body)
         : Model.validate(req.body);

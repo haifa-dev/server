@@ -65,7 +65,9 @@ Event.init(
   }
 );
 
-Event.hasMany(Tag);
-Tag.belongsTo(Event);
+const associationParams = { foreignKey: 'taggedId', constraints: false };
+
+Event.hasMany(Tag, associationParams);
+Tag.belongsTo(Event, associationParams);
 
 module.exports = Event;

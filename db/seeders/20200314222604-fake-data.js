@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 const _ = require('lodash');
 
-const { DevProfile, Event, Project, ProjectReq } = require('../../db');
+const { DevProfile, Event, Project, ProjectReq } = require('..');
 const {
   generateDevProfile,
   generateEvent,

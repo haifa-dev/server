@@ -1,4 +1,4 @@
-const { DevProfile, Social } = require('../db');
+const { DevProfile, Link } = require('../db');
 const ServerError = require('../utils/ServerError');
 
 /**
@@ -36,6 +36,8 @@ exports.getDevProfile = async (req, res) => {
 exports.deleteDevProfile = async (req, res) => {
   // find a single user with the id
   const devProfile = await DevProfile.findByPk(req.params.id);
+  await Link.destroy({ where: { linkableId: req.params.id } });
+
   // validate dev profiles existence in the database
   if (!devProfile)
     throw new ServerError('The developer profile with the given ID was not found.', 404);
@@ -78,13 +80,13 @@ exports.updateDevProfile = async (req, res) => {
   if (!devProfile)
     throw new ServerError('The developer profile with the given ID was not found.', 404);
   // recreate the social tags
-  await Social.destroy({ where: { devProfileId: req.params.id } });
+  await Link.destroy({ where: { linkableId: req.params.id } });
 
   if (req.body.socials) {
     req.body.socials.forEach(social => {
-      social.devProfileId = req.params.id;
+      social.linkableId = req.params.id;
     });
-    await Social.bulkCreate(req.body.socials);
+    await Link.bulkCreate(req.body.socials);
   }
   // save devProfile changes
   await devProfile.update(req.body);

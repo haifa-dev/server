@@ -38,6 +38,8 @@ exports.deleteProject = async (req, res) => {
   if (!project) throw new ServerError('The project with the given ID was not found.', 404);
 
   await project.destroy();
+  await Link.destroy({ where: { linkableId: req.params.id } });
+  await Tag.destroy({ where: { taggedId: req.params.id } });
 
   // send status if successes
   res.status(204).json({
@@ -69,13 +71,13 @@ exports.updateProject = async (req, res) => {
   if (!project) throw new ServerError('The project with the given ID was not found.', 404);
 
   // clear old data
-  await Link.destroy({ where: { projectId: req.params.id } });
-  await Tag.destroy({ where: { ProjectId: req.params.id } });
+  await Link.destroy({ where: { linkableId: req.params.id } });
+  await Tag.destroy({ where: { taggedId: req.params.id } });
 
   // create links if any
   if (req.body.links) {
     req.body.links.forEach(link => {
-      link.projectId = req.params.id;
+      link.linkableId = req.params.id;
     });
     await Link.bulkCreate(req.body.links);
   }
@@ -83,7 +85,7 @@ exports.updateProject = async (req, res) => {
   // create tags if any
   if (req.body.tags) {
     req.body.tags.forEach(tag => {
-      tag.ProjectId = req.params.id;
+      tag.taggedId = req.params.id;
     });
     await Tag.bulkCreate(req.body.tags);
   }

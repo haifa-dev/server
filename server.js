@@ -15,9 +15,9 @@ const { log } = console;
 
 module.exports = async () => {
   await sequelize.authenticate();
-  await sequelize.sync();
+  await sequelize.sync({ force: true });
 
-  log(chalk.green('Database connection established successfully'));
+  log(chalk.green('Database connection established'));
 
   const app = express();
   app.use(morgan('dev'));
@@ -34,5 +34,5 @@ module.exports = async () => {
 
   app.use(errorHandler);
 
-  return app.listen(PORT, () => log(`Listening on port ${PORT}`));
+  return app.listen(PORT, () => log(`Listening on port ${chalk.green(PORT)}`));
 };
