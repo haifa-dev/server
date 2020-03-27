@@ -1,15 +1,18 @@
-const server = require('./server');
+const { log, error } = console;
 
-const { error } = console;
+process.on('uncaughtException', err => {
+  log('::Uncaught Exception::');
+  log(err);
+});
+
+const server = require('./server');
 
 module.exports = server();
 
-process.on('uncaughtException', err => {
-  error('Uncaught Exception:', err);
-  process.exit(1);
-});
-
 process.on('unhandledRejection', err => {
-  error('Unhandled Rejection:', err);
-  process.exit(1);
+  log('::Unhandled Rejection::');
+  error(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
 });

@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "npx nodemon index.js",
-    "db:create": "npx sequelize-cli db:seed:all",
+    "db:create": "npx sequelize-cli db:create && npx sequelize-cli db:migrate",
     "share": "npx ngrok http 5000",
     "test": "NODE_ENV=test jest -i",
     "test:watch": "NODE_ENV=test jest -i --detectOpenHandles --watchAll",

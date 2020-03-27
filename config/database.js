@@ -13,6 +13,6 @@ const DATABASE_CONFIG = {
 
 module.exports = {
   development: DATABASE_CONFIG,
-  test: DATABASE_CONFIG,
+  test: { ...DATABASE_CONFIG, database: `${DATABASE}-test` },
   production: DATABASE_CONFIG
 };

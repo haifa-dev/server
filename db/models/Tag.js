@@ -17,7 +17,10 @@ class Tag extends Model {
 
 Tag.init(
   {
-    taggedId: DataTypes.UUID,
+    taggedId: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,

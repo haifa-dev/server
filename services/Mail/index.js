@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const Handlebars = require('handlebars');
 
-const { isDev } = require('../../config/config');
+const { isDev } = require('../../config/env');
 const { readFile } = require('../../utils/fileSystem');
 
 const { log, error } = console;

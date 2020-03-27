@@ -28,7 +28,10 @@ class Link extends Model {
 
 Link.init(
   {
-    linkableId: DataTypes.UUID,
+    linkableId: {
+      type: DataTypes.UUID,
+      allowNull: false
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -42,7 +45,7 @@ Link.init(
   },
   {
     sequelize,
-    modelName: 'link'
+    modelName: 'links'
   }
 );
 

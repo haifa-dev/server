@@ -1,11 +1,11 @@
 const { Sequelize } = require('sequelize');
 const chalk = require('chalk');
-const { isDev } = require('./config');
+const { isDev, isTest } = require('./env');
 
 const { log } = console;
 
 module.exports = new Sequelize(
-  process.env.DATABASE,
+  isTest ? `${process.env.DATABASE}-test` : process.env.DATABASE,
   process.env.DATABASE_USERNAME,
   process.env.DATABASE_PASSWORD,
   {

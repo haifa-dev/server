@@ -1,5 +1,4 @@
-require('dotenv').config({ debug: true });
-
+require('dotenv').config();
 const chalk = require('chalk');
 const express = require('express');
 const path = require('path');
@@ -11,13 +10,16 @@ const { errorHandler } = require('./middleware');
 const { router, notFound } = require('./routes');
 const sequelize = require('./config/sequelize');
 
-const { log } = console;
+const { log, error } = console;
 
 module.exports = async () => {
-  await sequelize.authenticate();
-  await sequelize.sync();
-
+  // check and handle Database connection
+  await sequelize.authenticate().catch(err => {
+    error(chalk.red('Unable connect to the database:', err));
+    process.exit(1);
+  });
   log(chalk.green('Database connection established'));
+  // sequelize.sync();
 
   const app = express();
   app.use(morgan('dev'));
@@ -33,6 +35,5 @@ module.exports = async () => {
   const PORT = process.env.PORT || 5000;
 
   app.use(errorHandler);
-
   return app.listen(PORT, () => log(`Listening on port ${chalk.green(PORT)}`));
 };
