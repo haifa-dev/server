@@ -13,20 +13,18 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false,
-        validate: { len: [1, 255], notEmpty: true, notNull: true }
+        allowNull: false
       },
       url: {
         type: Sequelize.STRING,
-        allowNull: false,
-        validate: { len: [1, 255], notEmpty: true, notNull: true, isUrl: true }
+        allowNull: false
       },
       created_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       },
       updated_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       }
     });

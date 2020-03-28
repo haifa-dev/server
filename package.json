@@ -12,10 +12,13 @@
     "dev": "npx nodemon index.js",
     "db:create": "npx sequelize-cli db:create",
     "db:migrate": "npx sequelize-cli db:migrate",
-    "db:init": "npm run db:create;npm run db:migrate;",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:seed:undo": "npx sequelize-cli db:seed:all:undo",
+    "db:init": "npm run db:create;npm run db:migrate;npm run db:seed",
     "share": "npx ngrok http 5000",
-    "test": "NODE_ENV=test jest -i",
-    "test:watch": "NODE_ENV=test jest -i --detectOpenHandles --watchAll",
+    "test": "NODE_ENV=test jest -i --detectOpenHandles",
+    "pretest": "NODE_ENV=test npx sequelize-cli db:create; NODE_ENV=test npx sequelize-cli db:migrate",
+    "posttest": "NODE_ENV=test npx sequelize-cli db:drop",
     "lint": "eslint --ignore-path .gitignore ."
   },
   "repository": {
@@ -80,5 +83,5 @@
       "/node_modules/"
     ]
   },
-  "delay": "1000"
+  "delay": "5000"
 }

@@ -1,10 +1,11 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
     return queryInterface.createTable('projects', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
         allowNull: false,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal('uuid_generate_v4()'),
         primaryKey: true
       },
       title: {
@@ -22,11 +23,11 @@ module.exports = {
         defaultValue: 'default/project.jpg'
       },
       created_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       },
       updated_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       }
     });

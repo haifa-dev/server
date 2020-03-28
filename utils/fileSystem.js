@@ -20,13 +20,14 @@ exports.removeImg = imgPath => unlinkAsync(path.join(__dirname, '..', 'public', 
 exports.readFile = filePath => readFileAsync(path.join(__dirname, '..', filePath));
 
 exports.removeImgs = async () => {
-  const images = await readdirAsync(IMAGES_DIR);
-  await Promise.all(
-    images
-      .filter(file => !GITKEEP.test(file))
-      .map(file => path.join(IMAGES_DIR, file))
-      .map(unlinkAsync)
-  );
+  let images = await readdirAsync(IMAGES_DIR);
+  images = images.filter(file => !GITKEEP.test(file)).map(file => path.join(IMAGES_DIR, file));
+
+  if (images.length) {
+    await Promise.all(images.map(img => unlinkAsync(img)));
+  }
+
+  return Promise.resolve(null);
 };
 
 exports.generateImage = (

@@ -1,33 +1,29 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
     return queryInterface.createTable('users', {
       id: {
+        allowNull: false,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        defaultValue: Sequelize.literal('uuid_generate_v4()'),
         primaryKey: true
       },
       email: {
         type: Sequelize.STRING,
         unique: true,
-        allowNull: false,
-        validate: { isEmail: true, notNull: true, notEmpty: true, len: [3, 255] }
+        allowNull: false
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false,
-        validate: { notEmpty: true, len: [1, 255], notNull: true }
+        allowNull: false
       },
       name: {
         type: Sequelize.STRING,
-        defaultValue: 'unknown',
-        validate: { len: [1, 255] }
+        defaultValue: 'unknown'
       },
       role: {
         type: Sequelize.STRING,
-        defaultValue: 'user',
-        validate: {
-          isIn: [['user', 'guide', 'lead-guide', 'admin']]
-        }
+        defaultValue: 'user'
       },
       reset_token: {
         type: Sequelize.STRING
@@ -36,11 +32,11 @@ module.exports = {
         type: Sequelize.DATE
       },
       created_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       },
       updated_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       }
     });

@@ -1,22 +1,19 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
     return queryInterface.createTable('events', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
         allowNull: false,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal('uuid_generate_v4()'),
         primaryKey: true
       },
       date: {
-        type: Sequelize.DATE,
-        validate: {
-          isAfter: Sequelize.NOW
-        }
+        type: Sequelize.DATE
       },
       title: {
         type: Sequelize.STRING,
-        allowNull: false,
-        validate: { len: [1, 255], notEmpty: true, notNull: true }
+        allowNull: false
       },
       description: {
         type: Sequelize.TEXT,
@@ -28,11 +25,11 @@ module.exports = {
         defaultValue: 'default/event.jpg'
       },
       created_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       },
       updated_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       }
     });

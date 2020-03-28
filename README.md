@@ -24,6 +24,7 @@ sudo docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 po
 ```sh
 npm install
 cp .env.example .env
+npm run db:init
 npm start
 ```
 
@@ -32,6 +33,7 @@ npm start
 ```bat
 npm install
 copy .env.example .env
+npm run db:init
 npm start
 ```
 

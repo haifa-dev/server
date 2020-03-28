@@ -19,7 +19,6 @@ module.exports = async () => {
     process.exit(1);
   });
   log(chalk.green('Database connection established'));
-  // sequelize.sync();
 
   const app = express();
   app.use(morgan('dev'));

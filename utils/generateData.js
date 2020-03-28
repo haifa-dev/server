@@ -58,7 +58,7 @@ exports.generateEvent = async (withImage = true, numOfTags = generateNum()) => {
     title: faker.name.title(),
     description: faker.lorem.paragraph(generateNum()),
     image,
-    date: faker.date.past(2),
+    date: faker.date.future(2),
     location: `${faker.address.latitude()}, ${faker.address.longitude()}`,
     tags: _.times(numOfTags, () => ({ title: faker.commerce.productAdjective() }))
   };
@@ -74,10 +74,10 @@ exports.generateProjectReq = () => {
   };
 };
 
-exports.generateAdmin = name => {
+exports.generateAdmin = (name = 'root') => {
   return {
     name,
-    email: faker.internet.email(),
+    email: faker.internet.email(name, 'user'),
     password: crypto
       .createHash('sha256')
       .update(crypto.randomBytes(32).toString('hex'))

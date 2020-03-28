@@ -17,11 +17,11 @@ module.exports = {
         validate: { len: [1, 255], notEmpty: true, notNull: true }
       },
       created_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       },
       updated_at: {
-        allowNull: false,
+        defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE
       }
     });
