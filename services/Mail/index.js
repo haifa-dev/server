@@ -15,15 +15,15 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-if (isDev) {
-  transporter.verify(err => {
-    if (error) {
-      error('SMTP server connection failed\n', err);
-    } else {
-      log('SMTP server connection established successfully');
-    }
-  });
-}
+// if (isDev) {
+//   transporter.verify(err => {
+//     if (error) {
+//       error('SMTP server connection failed\n', err);
+//     } else {
+//       log('SMTP server connection established successfully');
+//     }
+//   });
+// }
 
 module.exports.mailPasswordRestToken = async (user, resetURL) => {
   const source = await readFile('/services/Mail/view/resetPassword.hbs');
