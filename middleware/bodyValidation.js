@@ -1,5 +1,19 @@
 const ServerError = require('../utils/ServerError');
 
+// a batter solution need to implement for all the routes before deleting the old version require module adjustment
+exports.bodyValidation = (Model, validationType) => {
+  return (req, res, next) => {
+    try {
+      const { error } = Model.validate(req.body, validationType);
+      if (error) throw new ServerError(error.details[0].message, 400);
+
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+};
+
 /**
  * Creates a validation middleware that validates request body
  * For given Model based on it's validation methods
