@@ -13,7 +13,7 @@ const PROFIT_PROJECT_REQUEST_SCHEMA = {
     businessPlan: Joi.string().required(),
     linkToDocs: Joi.string().required(),
     systemDefinitionFile: Joi.string().required().regex(urlRegex).message('invalid url'),
-    CommunityOrProfit: Joi.string().allow('community', 'profit').required(),
+    communityOrProfit: Joi.string().allow('community', 'profit').required(),
     isFunded: Joi.boolean().required()
   })
 };
@@ -93,15 +93,6 @@ ProfitProjectReq.init(
         len: [2, 255]
       }
     },
-    CommunityOrProfit: {
-      type: DataTypes.ENUM,
-      values: ['community', 'profit'],
-      allowNull: false,
-      validate: {
-        isIn: [['community', 'profit']],
-        isNull: false
-      }
-    },
     isFunded: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -109,6 +100,10 @@ ProfitProjectReq.init(
         notEmpty: true,
         notNull: true
       }
+    },
+    communityOrProfit: {
+      type: DataTypes.ENUM,
+      values: ['community', 'profit']
     }
   },
   {

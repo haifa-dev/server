@@ -1,5 +1,5 @@
 const auth = require('./auth');
-const bodyValidation = require('./bodyValidation');
+const bodyValidation = require('./bodyValidationOld');
 const errorHandler = require('./errorHandler');
 const imageHandler = require('./imageHandler');
 const paramValidation = require('./paramValidation');

@@ -7,17 +7,10 @@ const { generateImage } = require('../../utils/fileSystem');
 
 const STRICT_DEV_PROFILE_SCHEMA = Joi.object({
   id: Joi.string().uuid(),
-  name: Joi.string()
-    .required()
-    .min(1)
-    .max(255),
+  name: Joi.string().required().min(1).max(255),
   image: Joi.string(),
   bio: Joi.string().required(),
-  email: Joi.string()
-    .required()
-    .email()
-    .min(3)
-    .max(255),
+  email: Joi.string().required().email().min(3).max(255),
   socials: Link.intensifiedValidationSchema()
 });
 
@@ -58,15 +51,15 @@ DevProfile.init(
     sequelize,
     defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
-      beforeCreate: async devProfile => {
+      beforeCreate: async (devProfile) => {
         if (!devProfile.getDataValue('image')) devProfile.image = await generateImage();
       },
-      beforeUpdate: async devProfile => {
+      beforeUpdate: async (devProfile) => {
         if (devProfile.getDataValue('image')) {
           await removeImg(devProfile.previous('image'));
         }
       },
-      beforeDestroy: async devProfile => {
+      beforeDestroy: async (devProfile) => {
         await removeImg(devProfile.previous('image'));
       }
     }
