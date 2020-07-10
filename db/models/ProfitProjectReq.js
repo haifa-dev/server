@@ -2,18 +2,19 @@ const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../../config/sequelize');
 
+const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+
 const PROFIT_PROJECT_REQUEST_SCHEMA = {
   create: Joi.object({
-    fullName: Joi.string().required(),
-    email: Joi.string().required(),
-    phoneNumber: Joi.string().required(),
-    aboutProject: Joi.string().required(),
-    businessType: Joi.string().required(),
+    name: Joi.string().min(2).max(255).required(),
+    email: Joi.string().email().min(3).max(255).required(),
+    phone: Joi.number().integer().positive().required(),
+    about: Joi.string().required(),
     businessPlan: Joi.string().required(),
     linkToDocs: Joi.string().required(),
-    systemDefinitionFile: Joi.string().required(),
-    CommunityOrProfit: Joi.string().required(),
-    isFunded: Joi.string().required()
+    systemDefinitionFile: Joi.string().required().regex(urlRegex).message('invalid url'),
+    CommunityOrProfit: Joi.string().allow('community', 'profit').required(),
+    isFunded: Joi.boolean().required()
   })
 };
 
@@ -31,7 +32,7 @@ ProfitProjectReq.init(
       allowNull: false,
       primaryKey: true
     },
-    fullName: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -50,7 +51,7 @@ ProfitProjectReq.init(
         len: [3, 255]
       }
     },
-    phoneNumber: {
+    phone: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -60,7 +61,7 @@ ProfitProjectReq.init(
         notNull: true
       }
     },
-    aboutProject: {
+    about: {
       type: DataTypes.TEXT,
       allowNull: false,
       validate: {
@@ -69,17 +70,9 @@ ProfitProjectReq.init(
         min: 30
       }
     },
-    businessType: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: true,
-        notEmpty: true
-      }
-    },
     businessPlan: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: false,
       validate: { notEmpty: true, notNull: true }
     },
     linkToDocs: {
@@ -93,25 +86,28 @@ ProfitProjectReq.init(
     },
     systemDefinitionFile: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
       validate: {
+        notEmpty: true,
+        notNull: true,
         len: [2, 255]
       }
     },
     CommunityOrProfit: {
-      type: DataTypes.STRING,
-      notNull: true,
+      type: DataTypes.ENUM,
+      values: ['community', 'profit'],
+      allowNull: false,
       validate: {
-        notNull: true,
-        notEmpty: true
+        isIn: [['community', 'profit']],
+        isNull: false
       }
     },
     isFunded: {
-      type: DataTypes.STRING,
-      notEmpty: true,
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
       validate: {
-        notNull: true,
-        notEmpty: true
+        notEmpty: true,
+        notNull: true
       }
     }
   },

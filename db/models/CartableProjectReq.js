@@ -4,15 +4,13 @@ const sequelize = require('../../config/sequelize');
 
 const CARTABLE_PROJECT_REQUEST_SCHEMA = {
   create: Joi.object({
-    fullName: Joi.string().required(),
-    email: Joi.string().required(),
-    phoneNumber: Joi.string().required(),
-    aboutProject: Joi.string().required(),
-    businessType: Joi.string().required(),
-    nonProfitDesc: Joi.string().required(),
-    nonProfitWebSite: Joi.string().required(),
-    nonProfitWebAddress: Joi.string().required(),
-    nonProfitTasks: Joi.string().required()
+    name: Joi.string().min(2).max(255).required(),
+    email: Joi.string().email().min(3).max(255).required(),
+    phone: Joi.number().integer().positive().required(),
+    about: Joi.string().required(),
+    description: Joi.string().required(),
+    webAddress: Joi.string().required(),
+    tasks: Joi.string().required()
   })
 };
 
@@ -30,7 +28,7 @@ CartableProjectReq.init(
       allowNull: false,
       primaryKey: true
     },
-    fullName: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -49,7 +47,7 @@ CartableProjectReq.init(
         len: [3, 255]
       }
     },
-    phoneNumber: {
+    phone: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -59,7 +57,7 @@ CartableProjectReq.init(
         notNull: true
       }
     },
-    aboutProject: {
+    about: {
       type: DataTypes.TEXT,
       allowNull: false,
       validate: {
@@ -68,44 +66,22 @@ CartableProjectReq.init(
         min: 30
       }
     },
-    businessType: {
-      type: DataTypes.STRING,
+    description: {
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notNull: true,
         notEmpty: true
       }
     },
-    nonProfitDesc: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: true,
-        notEmpty: true
-      }
+    webAddress: {
+      type: DataTypes.STRING
     },
-    nonProfitWebSite: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: true,
-        notEmpty: true
-      }
-    },
-    nonProfitWebAddress: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: true,
-        notEmpty: true
-      }
-    },
-    nonProfitTasks: {
+    tasks: {
       type: DataTypes.TEXT,
       validate: {
         notNull: true,
-        notEmpty: true,
-        min: 50
+        notEmpty: true
       }
     }
   },
