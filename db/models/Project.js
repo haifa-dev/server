@@ -7,10 +7,7 @@ const { removeImg } = require('../../utils/fileSystem');
 
 const STRICT_PROJECT_SCHEMA = Joi.object({
   id: Joi.string().uuid(),
-  title: Joi.string()
-    .required()
-    .min(1)
-    .max(255),
+  title: Joi.string().required().min(1).max(255),
   description: Joi.string().required(),
   image: Joi.string(),
   links: Link.intensifiedValidationSchema(),
@@ -50,14 +47,14 @@ Project.init(
     sequelize,
     defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
-      beforeUpdate: async project => {
+      beforeUpdate: async (project) => {
         const newImage = project.getDataValue('image');
         const oldImage = project.previous('image');
         const createdByUser = /^img/.test(oldImage);
 
         if (newImage && createdByUser) await removeImg(oldImage);
       },
-      beforeDestroy: async project => {
+      beforeDestroy: async (project) => {
         const image = project.getDataValue('image');
         const createdByUser = /^img/.test(image);
 

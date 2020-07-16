@@ -24,10 +24,6 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      business_plan: {
-        type: Sequelize.TEXT,
-        allowNull: false
-      },
       link_to_docs: {
         type: Sequelize.STRING,
         allowNull: false
