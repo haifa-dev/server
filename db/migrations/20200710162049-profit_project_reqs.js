@@ -24,11 +24,11 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      link_to_docs: {
+      businessPlan: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      system_definition_file: {
+      system_definition: {
         type: Sequelize.STRING,
         allowNull: false
       },

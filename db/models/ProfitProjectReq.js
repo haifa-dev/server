@@ -10,7 +10,7 @@ const PROFIT_PROJECT_REQUEST_SCHEMA = {
     email: Joi.string().email().min(3).max(255).required(),
     phone: Joi.number().integer().positive().required(),
     about: Joi.string().required(),
-    linkToDocs: Joi.string().required(),
+    businessPlan: Joi.string().required(),
     systemDefinitionFile: Joi.string().required().regex(urlRegex).message('invalid url'),
     communityOrProfit: Joi.string().allow('community', 'profit').required(),
     isFunded: Joi.boolean().required()
@@ -69,7 +69,7 @@ ProfitProjectReq.init(
         min: 30
       }
     },
-    linkToDocs: {
+    businessPlan: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -78,7 +78,7 @@ ProfitProjectReq.init(
         isUrl: true
       }
     },
-    systemDefinitionFile: {
+    systemDefinition: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
