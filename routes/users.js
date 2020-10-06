@@ -1,7 +1,8 @@
 const router = require('express').Router();
-const { User } = require('../db');
-const { auth, bodyValidation } = require('../middleware');
+const { User } = require('../models/User');
 const { users } = require('../controllers');
+const auth = require('../middleware/auth');
+const bodyValidation = require('../middleware/bodyValidation');
 
 const { userLogin, createUser, getUser, deleteUser } = users;
 
