@@ -1,9 +1,9 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
-const sequelize = require('../../config/sequelize');
+const sequelize = require('../config/sequelize');
 const Link = require('./Link');
-const { removeImg } = require('../../utils/fileSystem');
-const { generateImage } = require('../../utils/fileSystem');
+const { removeImg } = require('../utils/fileSystem');
+const { generateImage } = require('../utils/fileSystem');
 
 const STRICT_DEV_PROFILE_SCHEMA = Joi.object({
   id: Joi.string().uuid(),
@@ -51,15 +51,15 @@ DevProfile.init(
     sequelize,
     defaultScope: { subQuery: true, include: { all: true } },
     hooks: {
-      beforeCreate: async (devProfile) => {
+      beforeCreate: async devProfile => {
         if (!devProfile.getDataValue('image')) devProfile.image = await generateImage();
       },
-      beforeUpdate: async (devProfile) => {
+      beforeUpdate: async devProfile => {
         if (devProfile.getDataValue('image')) {
           await removeImg(devProfile.previous('image'));
         }
       },
-      beforeDestroy: async (devProfile) => {
+      beforeDestroy: async devProfile => {
         await removeImg(devProfile.previous('image'));
       }
     }

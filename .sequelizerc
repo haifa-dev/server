@@ -1,13 +1,13 @@
+const path = require('path');
+
 /**
- * TIP: Use vscode 'Change Language Mode' command (Ctrl/Cmd + Shift + P)
- * To view this as a javascript file
+ * @description define Sequelize-cli folder structure
+ * @see VScode 'Change Language Mode' command (Ctrl/Cmd + Shift + P) to view as a javascript file
  */
 
-const { resolve } = require('path');
-
 module.exports = {
-  'config': resolve('config/database.js'),
-  'models-path': resolve('db/models'),
-  'seeders-path': resolve('db/seeders'),
-  'migrations-path': resolve('db/migrations')
+  config: path.resolve('config', 'sequelize-cli.js'),
+  'models-path': path.resolve('models'),
+  'seeders-path': path.resolve('db', 'seeders'),
+  'migrations-path': path.resolve('db', 'migrations'),
 };

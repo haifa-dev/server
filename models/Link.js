@@ -1,6 +1,6 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
-const sequelize = require('../../config/sequelize');
+const sequelize = require('../config/sequelize');
 
 class Link extends Model {
   static intensifiedValidationSchema() {

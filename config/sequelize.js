@@ -1,20 +1,13 @@
 const { Sequelize } = require('sequelize');
-const chalk = require('chalk');
-const { isDev, isTest } = require('./env');
+const { database, env, DATABASE_HOST } = require('./env');
+const { query } = require('../utils/log');
 
-const { log } = console;
-
-module.exports = new Sequelize(
-  isTest ? `${process.env.DATABASE}-test` : process.env.DATABASE,
-  process.env.DATABASE_USERNAME,
-  process.env.DATABASE_PASSWORD,
-  {
-    host: 'localhost',
-    dialect: 'postgres',
-    logging: isDev && (query => log(chalk.cyan(`\n${query}\n`))),
-
-    define: {
-      underscored: true
-    }
+// sequelize database connection configuration
+module.exports = new Sequelize(...Object.values(database), {
+  host: DATABASE_HOST,
+  dialect: 'postgres',
+  logging: env.isProd ? false : query,
+  define: {
+    underscored: true
   }
-);
+});

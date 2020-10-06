@@ -1,15 +1,12 @@
 const { DataTypes, Model } = require('sequelize');
 const Joi = require('@hapi/joi');
-const sequelize = require('../../config/sequelize');
+const sequelize = require('../config/sequelize');
 
 class Tag extends Model {
   static intensifiedValidationSchema() {
     return Joi.array().items(
       Joi.object({
-        title: Joi.string()
-          .min(1)
-          .max(255)
-          .required()
+        title: Joi.string().min(1).max(255).required()
       })
     );
   }

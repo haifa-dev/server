@@ -1,6 +1,6 @@
 const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../../config/sequelize');
+const sequelize = require('../config/sequelize');
 
 const STRICT_PROJECT_REQ_SCHEMA = Joi.object({
   id: Joi.string().uuid(),

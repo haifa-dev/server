@@ -3,45 +3,23 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Joi = require('@hapi/joi');
-const sequelize = require('../../config/sequelize');
+const sequelize = require('../config/sequelize');
+const { APP_SECRET_KEY } = require('../config/env');
 
-const USER_SCHEMA = Joi.object({
-  id: Joi.string().uuid(),
-  email: Joi.string()
-    .min(3)
-    .max(255)
-    .email(),
-  password: Joi.string()
-    .min(1)
-    .max(255),
-  name: Joi.string()
-    .min(1)
-    .max(255)
-});
-
-const STRICT_USER_SCHEMA = Joi.object({
-  id: Joi.string().uuid(),
-  email: Joi.string()
-    .min(3)
-    .max(255)
-    .required()
-    .email(),
-  password: Joi.string()
-    .min(1)
-    .max(255)
-    .required(),
-  name: Joi.string()
-    .min(1)
-    .max(255)
-});
-
+const USER_SCHEMA = {
+  create: Joi.object({
+    email: Joi.string().min(3).max(255).email().required(),
+    password: Joi.string().min(5).max(255).required(),
+    name: Joi.string().min(1).max(255)
+  }),
+  login: Joi.object({
+    email: Joi.string().min(3).max(255).email().required(),
+    password: Joi.string().min(5).max(255).required()
+  })
+};
 class User extends Model {
-  static validate(user) {
-    return USER_SCHEMA.validate(user);
-  }
-
-  static intensifiedValidation(user) {
-    return STRICT_USER_SCHEMA.validate(user);
+  static validate(reqBody, validationType) {
+    return USER_SCHEMA[validationType].validate(reqBody);
   }
 
   /**
@@ -55,10 +33,7 @@ class User extends Model {
   async generateResetToken() {
     const resetToken = crypto.randomBytes(32).toString('hex');
     await this.update({
-      resetToken: crypto
-        .createHash('sha256')
-        .update(resetToken)
-        .digest('hex'),
+      resetToken: crypto.createHash('sha256').update(resetToken).digest('hex'),
       resetTokenExpires: Date.now() + 20 * 60 * 1000
     });
 
@@ -76,7 +51,7 @@ class User extends Model {
         aud: this.role,
         iat: new Date().getTime()
       },
-      process.env.JWT_KEY,
+      APP_SECRET_KEY,
       {
         expiresIn: '20d'
       }
