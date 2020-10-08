@@ -1,7 +1,7 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
-    return queryInterface.createTable('profit_project_reqs', {
+    return queryInterface.createTable('profitable_project_reqs', {
       id: {
         allowNull: false,
         type: Sequelize.UUID,
@@ -24,8 +24,8 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      businessPlan: {
-        type: Sequelize.STRING,
+      business_plan: {
+        type: Sequelize.TEXT,
         allowNull: false
       },
       system_definition: {
@@ -49,7 +49,7 @@ module.exports = {
       }
     });
   },
-  down: (queryInterface) => {
-    return queryInterface.dropTable('profit_project_reqs');
+  down: queryInterface => {
+    return queryInterface.dropTable('profitable_project_reqs');
   }
 };

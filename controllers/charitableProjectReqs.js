@@ -25,7 +25,7 @@ exports.getCharitableProjectRequest = async (req, res) => {
   }
   res.status(200).json({
     status: 'success',
-    data: charitableProjectRequest
+    charitableProjectRequest
   });
 };
 
@@ -51,7 +51,7 @@ exports.deleteCharitableProjectRequest = async (req, res) => {
 /**
  * create new charitable project request via request body
  */
-exports.createCharitableProjectReq = async (req, res) => {
+exports.createCharitableProjectRequest = async (req, res) => {
   const charitableProjectRequest = await CharitableProjectReq.create(req.body);
   res.status(201).send({
     status: 'success',
@@ -62,7 +62,7 @@ exports.createCharitableProjectReq = async (req, res) => {
 /**
  * update existing project request by id
  */
-exports.updateCharitableProjectReq = async (req, res) => {
+exports.updateCharitableProjectRequest = async (req, res) => {
   const charitableProjectRequest = await CharitableProjectReq.findByPk(req.params.id);
   // check if the charitable project request exists
   if (!charitableProjectRequest) {

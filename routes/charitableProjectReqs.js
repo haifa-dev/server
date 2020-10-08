@@ -9,19 +9,23 @@ const {
   getCharitableProjectRequests,
   getCharitableProjectRequest,
   deleteCharitableProjectRequest,
-  createCharitableProjectReq,
-  updateCharitableProjectReq
+  createCharitableProjectRequest,
+  updateCharitableProjectRequest
 } = charitableProjectReqs;
 
 router
   .route('/')
   .get(queryHandler(CharitableProjectReq), getCharitableProjectRequests)
-  .post(bodyValidation(CharitableProjectReq, 'create'), createCharitableProjectReq);
+  .post(bodyValidation(CharitableProjectReq, 'create'), createCharitableProjectRequest);
 
 router
   .route('/:id')
   .get(paramValidation('id'), getCharitableProjectRequest)
-  .put(paramValidation('id'), updateCharitableProjectReq)
+  .put(
+    paramValidation('id'),
+    bodyValidation(CharitableProjectReq, 'create'),
+    updateCharitableProjectRequest
+  )
   .delete(paramValidation('id'), deleteCharitableProjectRequest);
 
 module.exports = router;

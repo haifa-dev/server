@@ -10,7 +10,9 @@ const {
   DATABASE_USERNAME,
   DATABASE_PASSWORD,
   DATABASE_NAME,
-  SECRET_KEY
+  SECRET_KEY,
+  ROOT_USERNAME,
+  ROOT_PASSWORD
 } = process.env;
 
 const APP_SECRET_KEY = SECRET_KEY || randomKey;
@@ -19,6 +21,11 @@ const env = {
   isTest: NODE_ENV === 'test',
   isProd: NODE_ENV === 'production',
   isDev: !NODE_ENV || NODE_ENV === 'development'
+};
+
+const adminCredentials = {
+  email: ROOT_USERNAME,
+  password: ROOT_PASSWORD
 };
 
 const PORT = process.env.PORT || 5000;
@@ -35,5 +42,6 @@ module.exports = {
   PORT,
   DATABASE_HOST,
   database,
-  APP_SECRET_KEY
+  APP_SECRET_KEY,
+  adminCredentials
 };

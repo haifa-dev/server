@@ -2,28 +2,28 @@ const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
-const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/;
 
-const PROFIT_PROJECT_REQUEST_SCHEMA = {
+const PROFITABLE_PROJECT_REQUEST_SCHEMA = {
   create: Joi.object({
     name: Joi.string().min(2).max(255).required(),
     email: Joi.string().email().min(3).max(255).required(),
     phone: Joi.number().integer().positive().required(),
     about: Joi.string().required(),
     businessPlan: Joi.string().required(),
-    systemDefinitionFile: Joi.string().required().regex(urlRegex).message('invalid url'),
-    communityOrProfit: Joi.string().allow('community', 'profit').required(),
+    systemDefinition: Joi.string().required().regex(urlRegex).message('invalid url'),
+    communityOrProfit: Joi.string().valid('community', 'profit').required(),
     isFunded: Joi.boolean().required()
   })
 };
 
-class ProfitProjectReq extends Model {
+class ProfitableProjectReq extends Model {
   static validate(reqBody, validationType) {
-    return PROFIT_PROJECT_REQUEST_SCHEMA[validationType].validate(reqBody);
+    return PROFITABLE_PROJECT_REQUEST_SCHEMA[validationType].validate(reqBody);
   }
 }
 
-ProfitProjectReq.init(
+ProfitableProjectReq.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -74,8 +74,7 @@ ProfitProjectReq.init(
       allowNull: false,
       validate: {
         notNull: true,
-        notEmpty: true,
-        isUrl: true
+        notEmpty: true
       }
     },
     systemDefinition: {
@@ -87,6 +86,10 @@ ProfitProjectReq.init(
         len: [2, 255]
       }
     },
+    communityOrProfit: {
+      type: DataTypes.ENUM,
+      values: ['community', 'profit']
+    },
     isFunded: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -94,10 +97,6 @@ ProfitProjectReq.init(
         notEmpty: true,
         notNull: true
       }
-    },
-    communityOrProfit: {
-      type: DataTypes.ENUM,
-      values: ['community', 'profit']
     }
   },
   {
@@ -105,4 +104,4 @@ ProfitProjectReq.init(
   }
 );
 
-module.exports = ProfitProjectReq;
+module.exports = ProfitableProjectReq;
