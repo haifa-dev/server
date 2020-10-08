@@ -11,7 +11,7 @@ const CHARITABLE_PROJECT_REQUEST_SCHEMA = {
     phone: Joi.number().integer().positive().required(),
     about: Joi.string().required(),
     description: Joi.string().required(),
-    webAddress: Joi.string().regex(urlRegex).required(),
+    webAddress: Joi.string().regex(urlRegex),
     tasks: Joi.string().required()
   })
 };
@@ -77,8 +77,7 @@ CharitableProjectReq.init(
       }
     },
     webAddress: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING
     },
     tasks: {
       type: DataTypes.TEXT,

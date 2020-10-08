@@ -29,8 +29,7 @@ module.exports = {
         allowNull: false
       },
       web_address: {
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.STRING
       },
       tasks: {
         type: Sequelize.TEXT,
@@ -46,7 +45,7 @@ module.exports = {
       }
     });
   },
-  down: (queryInterface) => {
+  down: queryInterface => {
     return queryInterface.dropTable('charitable_project_reqs');
   }
 };
