@@ -1,10 +1,10 @@
-const { database, databaseHost } = require('./env');
+const { database, DATABASE_HOST } = require('./env');
 
 // sequelize-cli database connection configuration
 const connection = {
   ...database,
   dialect: 'postgres',
-  host: databaseHost
+  host: DATABASE_HOST
 };
 
 module.exports = {
