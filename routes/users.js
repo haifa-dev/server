@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User } = require('../models/User');
+const  User  = require('../models/User');
 const { users } = require('../controllers');
 const auth = require('../middleware/auth');
 const bodyValidation = require('../middleware/bodyValidation');
@@ -9,7 +9,7 @@ const { userLogin, createUser, getUser, deleteUser } = users;
 router
   .route('/')
   .get(auth, getUser)
-  .post(bodyValidation(User, 'login'), createUser)
+  .post(bodyValidation(User, 'create'), createUser)
   .delete(auth, deleteUser);
 // .patch(auth, bodyValidation(User, false), updateUser);
 

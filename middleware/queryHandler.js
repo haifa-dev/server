@@ -19,9 +19,9 @@ module.exports = Model => {
           direction: Joi.string().valid('ASC', 'DESC').required(),
           col: Joi.string()
             .valid(...Object.keys(Model.rawAttributes))
-            .required(),
+            .required()
         })
-      ),
+      )
   });
 
   return (req, res, next) => {

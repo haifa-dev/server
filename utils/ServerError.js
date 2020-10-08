@@ -7,7 +7,7 @@ module.exports = class ServerError extends Error {
   constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith('4') ? 'Failure' : 'Error';
+    this.status = `${statusCode}`.startsWith('4') ? 'failure' : 'error';
     this.isPlaned = true;
 
     // Prevent the error stack trace from being polluted

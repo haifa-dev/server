@@ -1,7 +1,7 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
-    return queryInterface.createTable('cartable_project_reqs', {
+    return queryInterface.createTable('charitable_project_reqs', {
       id: {
         allowNull: false,
         type: Sequelize.UUID,
@@ -47,6 +47,6 @@ module.exports = {
     });
   },
   down: (queryInterface) => {
-    return queryInterface.dropTable('cartable_project_reqs');
+    return queryInterface.dropTable('charitable_project_reqs');
   }
 };

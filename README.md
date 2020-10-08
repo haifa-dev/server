@@ -1,4 +1,4 @@
-# Haifa:Dev / Server
+# haifa:dev / server
 
 ## Prerequisites:
 

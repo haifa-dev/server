@@ -12,7 +12,7 @@ exports.getUser = async (req, res, next) => {
   if (!user) throw new ServerError('The user with the given ID was not found.', 404);
 
   res.status(200).send({
-    status: 'Success',
+    status: 'success',
     user: user
   });
 };
@@ -24,7 +24,7 @@ exports.deleteUser = async (req, res) => {
 
   await user.destroy();
   res.status(204).json({
-    status: 'Success',
+    status: 'success',
     user: null
   });
 };
@@ -41,10 +41,25 @@ exports.createUser = async (req, res) => {
     .header('Authorization', token)
     .status(201)
     .send({
-      status: 'Success',
+      status: 'success',
       token,
       user: concealSensitiveInfo(user)
     });
+};
+
+exports.userLogin = async (req, res, next) => {
+  const user = await User.findOne({ where: { email: req.body.email } });
+  if (!user) throw new ServerError('Invalid credentials', 400);
+
+  const validPassword = await user.comparePassword(req.body.password);
+  if (!validPassword) throw new ServerError('Invalid credentials', 400);
+  const token = user.generateAuthToken();
+
+  res.header('Authorization', token).send({
+    status: 'success',
+    token,
+    user: concealSensitiveInfo(user)
+  });
 };
 
 // exports.updateUser = async (req, res) => {
@@ -57,25 +72,10 @@ exports.createUser = async (req, res) => {
 
 //   await user.update(properties);
 //   res.send({
-//     status: 'Success',
+//     status: 'success',
 //     user: concealSensitiveInfo(user)
 //   });
 // };
-
-exports.userLogin = async (req, res, next) => {
-  const user = await User.findOne({ where: { email: req.body.email } });
-  if (!user) throw new ServerError('Invalid credentials', 400);
-
-  const validPassword = await user.comparePassword(req.body.password);
-  if (!validPassword) throw new ServerError('Invalid credentials', 400);
-  const token = user.generateAuthToken();
-
-  res.header('Authorization', token).send({
-    status: 'Success',
-    token,
-    user: concealSensitiveInfo(user)
-  });
-};
 
 // exports.updatePassword = async (req, res, next) => {
 //   const user = await User.findByPk(req.user.id);
@@ -87,7 +87,7 @@ exports.userLogin = async (req, res, next) => {
 
 //   const token = user.generateAuthToken();
 //   res.header('Authorization', token).send({
-//     status: 'Success',
+//     status: 'success',
 //     token,
 //     data: _.pick(user, ['id', 'name', 'email'])
 //   });
@@ -110,7 +110,7 @@ exports.userLogin = async (req, res, next) => {
 //     await mailPasswordRestToken(user, resetURL);
 
 //     res.status(200).json({
-//       status: 'Success',
+//       status: 'success',
 //       message: 'Token sent to email!'
 //     });
 //   } catch (err) {
@@ -132,7 +132,7 @@ exports.userLogin = async (req, res, next) => {
 //   const token = user.generateAuthToken();
 //   // update changedPasswordAt property for the user
 //   res.header('Authorization', token).send({
-//     status: 'Success',
+//     status: 'success',
 //     token,
 //     data: _.pick(user, ['id', 'name', 'email'])
 //   });

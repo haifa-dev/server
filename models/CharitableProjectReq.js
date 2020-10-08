@@ -2,9 +2,9 @@ const Joi = require('@hapi/joi');
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
-const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+const urlRegex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
-const CARTABLE_PROJECT_REQUEST_SCHEMA = {
+const CHARITABLE_PROJECT_REQUEST_SCHEMA = {
   create: Joi.object({
     name: Joi.string().min(2).max(255).required(),
     email: Joi.string().email().min(3).max(255).required(),
@@ -16,13 +16,13 @@ const CARTABLE_PROJECT_REQUEST_SCHEMA = {
   })
 };
 
-class CartableProjectReq extends Model {
+class CharitableProjectReq extends Model {
   static validate(reqBody, validationType) {
-    return CARTABLE_PROJECT_REQUEST_SCHEMA[validationType].validate(reqBody);
+    return CHARITABLE_PROJECT_REQUEST_SCHEMA[validationType].validate(reqBody);
   }
 }
 
-CartableProjectReq.init(
+CharitableProjectReq.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -94,4 +94,4 @@ CartableProjectReq.init(
   }
 );
 
-module.exports = CartableProjectReq;
+module.exports = CharitableProjectReq;
