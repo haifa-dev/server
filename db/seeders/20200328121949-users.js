@@ -1,14 +1,13 @@
-const chalk = require('chalk');
 const { generateAdmin } = require('../../utils/generateData');
+const { success } = require('../../utils/log');
 
-const { log } = console;
 const adminUser = generateAdmin();
 
 module.exports = {
   up: queryInterface => {
-    log(chalk.green('root user details:'));
-    log(chalk.green('email:'), adminUser.email);
-    log(chalk.green('password:'), adminUser.password);
+    success('root user details:');
+    success('email:', adminUser.email);
+    success('password:', adminUser.password);
 
     return queryInterface.bulkInsert('users', [adminUser], {});
   },
