@@ -25,8 +25,7 @@ module.exports = {
         allowNull: false
       },
       business_plan: {
-        type: Sequelize.TEXT,
-        allowNull: false
+        type: Sequelize.TEXT
       },
       system_definition: {
         type: Sequelize.STRING,

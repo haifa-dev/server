@@ -29,7 +29,7 @@ exports.generateArr = (generateFunc, maxNum = 5, minNum) => {
 };
 
 const generateName = num =>
-  num ? `demo-${num}:${faker.company.companyName()}` : faker.company.companyName();
+  num ? `${faker.company.companyName()} (demo-${num})` : faker.company.companyName();
 
 const pickRandom = arr => arr[Math.random() * arr.length];
 
@@ -37,7 +37,7 @@ exports.generateProfitableProjectRequest = num => ({
   name: generateName(num),
   email: faker.internet.email(),
   phone: faker.phone.phoneNumber(),
-  about: faker.lorem.text(),
+  about: faker.lorem.paragraphs(),
   businessPlan: faker.commerce.productDescription(),
   systemDefinition: faker.internet.url(),
   communityOrProfit: pickRandom(['community', 'profit']),
@@ -48,10 +48,10 @@ exports.generateCharitableProjectRequest = num => ({
   name: generateName(num),
   email: faker.internet.email(),
   phone: faker.phone.phoneNumber(),
-  about: faker.lorem.text(),
-  description: faker.commerce.productDescription(),
+  about: faker.lorem.lines(60),
+  description: faker.commerce.productDescription() + faker.lorem.lines(40),
   webAddress: faker.internet.url(),
-  tasks: faker.name.jobDescriptor()
+  tasks: faker.finance.transactionDescription() + faker.lorem.paragraph(1)
 });
 
 exports.generateNum = generateNum;

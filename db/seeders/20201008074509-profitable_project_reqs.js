@@ -1,8 +1,8 @@
 const { generateArr, generateProfitableProjectRequest } = require('../../utils/generateData');
 const { objFromCamelCaseToSnakeCase } = require('../../utils/objectModification');
 
-const MIN_CHARITABLE_REQUESTS_CREATED = 4;
-const MAX_CHARITABLE_REQUEST_CREATED = 5;
+const MIN_CHARITABLE_REQUESTS_CREATED = 20;
+const MAX_CHARITABLE_REQUEST_CREATED = 21;
 
 module.exports = {
   up: queryInterface =>
