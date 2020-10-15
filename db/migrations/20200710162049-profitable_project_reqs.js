@@ -25,11 +25,10 @@ module.exports = {
         allowNull: false
       },
       business_plan: {
-        type: Sequelize.TEXT
+        type: Sequelize.STRING
       },
       system_definition: {
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.STRING
       },
       community_or_profit: {
         type: Sequelize.ENUM,

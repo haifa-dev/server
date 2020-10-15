@@ -10,8 +10,8 @@ const PROFITABLE_PROJECT_REQUEST_SCHEMA = {
     email: Joi.string().email().min(3).max(255).required(),
     phone: Joi.number().integer().positive().required(),
     about: Joi.string().required(),
-    businessPlan: Joi.string(),
-    systemDefinition: Joi.string().required().regex(urlRegex).message('invalid url'),
+    businessPlan: Joi.string().regex(urlRegex),
+    systemDefinition: Joi.string().regex(urlRegex),
     communityOrProfit: Joi.string().valid('community', 'profit').required(),
     isFunded: Joi.boolean().required()
   })
@@ -70,16 +70,10 @@ ProfitableProjectReq.init(
       }
     },
     businessPlan: {
-      type: DataTypes.TEXT
+      type: DataTypes.STRING
     },
     systemDefinition: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-        notNull: true,
-        len: [2, 255]
-      }
+      type: DataTypes.STRING
     },
     communityOrProfit: {
       type: DataTypes.ENUM,
