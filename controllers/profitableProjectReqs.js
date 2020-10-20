@@ -20,9 +20,12 @@ exports.getProfitableProjectRequests = async (req, res) => {
 exports.getProfitableProjectRequest = async (req, res) => {
   const profitableProjectRequest = await ProfitableProjectReq.findByPk(req.params.id);
   // validate if the project request exists
-  if (!profitableProjectRequest) {
+  if (!profitableProjectRequest)
     throw new ServerError('The profitable project request with the given ID was not found.', 404);
-  }
+
+  // mark as reed
+  if (!profitableProjectRequest.reed) profitableProjectRequest.update({ reed: true });
+
   res.status(200).json({
     status: 'success',
     profitableProjectRequest

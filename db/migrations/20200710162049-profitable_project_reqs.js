@@ -37,6 +37,10 @@ module.exports = {
       is_funded: {
         type: Sequelize.BOOLEAN
       },
+      reed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       created_at: {
         defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE

@@ -86,6 +86,10 @@ ProfitableProjectReq.init(
         notEmpty: true,
         notNull: true
       }
+    },
+    reed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },
   {

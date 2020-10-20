@@ -23,6 +23,9 @@ exports.getCharitableProjectRequest = async (req, res) => {
   if (!charitableProjectRequest) {
     throw new ServerError('The charitable project request with the given ID was not found.', 404);
   }
+  // mark as reed
+  if (!charitableProjectRequest.reed) charitableProjectRequest.update({ reed: true });
+
   res.status(200).json({
     status: 'success',
     charitableProjectRequest

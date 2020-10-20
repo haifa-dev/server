@@ -1,6 +1,6 @@
 # haifa:dev / server
 
-## Prerequisites:
+## Prerequisites
 
 - You need a `PostgreSQL` database installed and configured.
   You can get `PostgreSQL` from [here][postgresql].

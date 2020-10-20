@@ -35,6 +35,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false
       },
+      reed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       created_at: {
         defaultValue: Sequelize.literal('now()'),
         type: Sequelize.DATE

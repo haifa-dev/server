@@ -86,6 +86,10 @@ CharitableProjectReq.init(
         notNull: true,
         notEmpty: true
       }
+    },
+    reed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },
   {
