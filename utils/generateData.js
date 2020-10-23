@@ -31,14 +31,14 @@ exports.generateArr = (generateFunc, maxNum = 5, minNum) => {
 const generateName = num =>
   num ? `${faker.company.companyName()} (demo-${num})` : faker.company.companyName();
 
-const pickRandom = arr => arr[Math.random() * arr.length];
+const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 
 exports.generateProfitableProjectRequest = num => ({
   name: generateName(num),
   email: faker.internet.email(),
   phone: faker.phone.phoneNumber(),
   about: faker.lorem.paragraphs(),
-  businessPlan: faker.commerce.productDescription(),
+  businessPlan: faker.internet.url(),
   systemDefinition: faker.internet.url(),
   communityOrProfit: pickRandom(['community', 'profit']),
   isFunded: faker.random.boolean()

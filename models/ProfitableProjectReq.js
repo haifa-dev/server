@@ -77,7 +77,8 @@ ProfitableProjectReq.init(
     },
     communityOrProfit: {
       type: DataTypes.ENUM,
-      values: ['community', 'profit']
+      values: ['community', 'profit'],
+      allowNull: false
     },
     isFunded: {
       type: DataTypes.BOOLEAN,

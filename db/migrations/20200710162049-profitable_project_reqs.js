@@ -32,10 +32,12 @@ module.exports = {
       },
       community_or_profit: {
         type: Sequelize.ENUM,
-        values: ['community', 'profit']
+        values: ['community', 'profit'],
+        allowNull: false
       },
       is_funded: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
       reed: {
         type: Sequelize.BOOLEAN,
